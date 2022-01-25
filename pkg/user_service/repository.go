@@ -3,16 +3,17 @@ package userservice
 import (
 	"context"
 	"database/sql"
+	"strings"
 
-	"github.com/go-kit/kit/log"
-
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/jcromanu/final_project/errors"
 	"github.com/jcromanu/final_project/pkg/entities"
 )
 
 const (
-	create_user_sql = `INSERT INTO USERS(name,age,pwd_hash,additional_information,parent) 
-	VALUES(?,?,?,?,')`
+	create_user_sql = `INSERT INTO USER(username,age,pwd_hash,additional_information,parent) 
+	VALUES(?,?,?,?,?)`
 )
 
 type UserRepository interface {
@@ -37,8 +38,9 @@ func NewUserRepository(db *sql.DB, log log.Logger) *userRepository {
 
 func (r *userRepository) CreateUser(ctx context.Context, usr entities.User) (int32, error) {
 	var res sql.Result
-	res, err := r.db.ExecContext(ctx, create_user_sql, usr.Name, usr.Pwd_hash, usr.Additional_information, usr.Parent)
+	res, err := r.db.ExecContext(ctx, create_user_sql, usr.Name, usr.Age, usr.Pwd_hash, usr.Additional_information, strings.Join(usr.Parent, ","))
 	if err != nil {
+		level.Error(r.log).Log("Error creating user" + err.Error())
 		return 0, errors.NewDatabaseError()
 	}
 	id, _ := res.LastInsertId()

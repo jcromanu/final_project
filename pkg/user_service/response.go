@@ -9,8 +9,8 @@ type authenticateResponse struct {
 }*/
 
 type createUserResponse struct {
-	user    entities.User
-	message entities.Message
+	User    entities.User
+	Message entities.Message
 }
 
 /*

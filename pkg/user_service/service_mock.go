@@ -7,11 +7,11 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type RepositoryMock struct {
+type ServiceMock struct {
 	mock.Mock
 }
 
-func (m *RepositoryMock) CreateUser(ctx context.Context, usr entities.User) (int32, error) {
+func (m *ServiceMock) CreateUser(ctx context.Context, usr entities.User) (entities.User, error) {
 	args := m.Called(ctx, usr)
-	return int32(args.Int(0)), args.Error(1)
+	return entities.User{Id: usr.Id}, args.Error(1)
 }

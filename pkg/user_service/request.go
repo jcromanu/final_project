@@ -3,7 +3,7 @@ package userservice
 import "github.com/jcromanu/final_project/pkg/entities"
 
 type createUserRequest struct {
-	entities.User
+	User entities.User
 }
 
 /*

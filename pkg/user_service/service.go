@@ -5,15 +5,10 @@ package userservice
 
 import (
 	"context"
-	"errors"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/jcromanu/final_project/pkg/entities"
-)
-
-var (
-	errorUserCreationFail = errors.New("user creation failed ")
 )
 
 type Service interface {

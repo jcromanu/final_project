@@ -2,17 +2,12 @@ package userservice
 
 import (
 	"context"
-	"errors"
-
-	"github.com/go-kit/kit/log"
 
 	"github.com/go-kit/kit/endpoint"
 	kitGRPC "github.com/go-kit/kit/transport/grpc"
+	"github.com/go-kit/log"
+	"github.com/jcromanu/final_project/errors"
 	"github.com/jcromanu/final_project/pb"
-)
-
-var (
-	errBadTypeError = errors.New("Bad type error ")
 )
 
 type userServiceServer struct {
@@ -24,7 +19,7 @@ func makeCreateUserGRPCServer(ep endpoint.Endpoint, opts []kitGRPC.ServerOption,
 	return kitGRPC.NewServer(
 		ep,
 		makeDecodeGRPCCreateUserRequest(logger),
-		makeEncodeGRPCCReateUserResonse(logger),
+		makeEncodeGRPCCReateUserResponse(logger),
 		opts...,
 	)
 }
@@ -42,7 +37,7 @@ func (srv *userServiceServer) CreateUser(ctx context.Context, req *pb.CreateUser
 	}
 	r, ok := resp.(*pb.CreateUserResponse)
 	if !ok {
-		return nil, errBadTypeError
+		return nil, errors.NewBadResponseTypeError()
 	}
 	return r, nil
 }
