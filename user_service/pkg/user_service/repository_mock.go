@@ -3,7 +3,7 @@ package userservice
 import (
 	"context"
 
-	"github.com/jcromanu/final_project/pkg/entities"
+	"github.com/jcromanu/final_project/user_service/pkg/entities"
 	"github.com/stretchr/testify/mock"
 )
 

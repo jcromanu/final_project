@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"github.com/jcromanu/final_project/errors"
-	"github.com/jcromanu/final_project/pkg/entities"
+	"github.com/jcromanu/final_project/user_service/errors"
+	"github.com/jcromanu/final_project/user_service/pkg/entities"
 )
 
 const (

@@ -1,6 +1,6 @@
 package userservice
 
-import "github.com/jcromanu/final_project/pkg/entities"
+import "github.com/jcromanu/final_project/user_service/pkg/entities"
 
 type createUserRequest struct {
 	User entities.User

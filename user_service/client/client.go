@@ -1,3 +1,4 @@
+//Use only for testing purposes to test the server without a gatway client
 package main
 
 import (
@@ -5,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/jcromanu/final_project/pb"
+	"github.com/jcromanu/final_project/user_service/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

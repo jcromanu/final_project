@@ -10,8 +10,8 @@ import (
 	"github.com/go-kit/kit/log/level"
 	kitGRPC "github.com/go-kit/kit/transport/grpc"
 	"github.com/go-sql-driver/mysql"
-	"github.com/jcromanu/final_project/pb"
-	userservice "github.com/jcromanu/final_project/pkg/user_service"
+	"github.com/jcromanu/final_project/user_service/pb"
+	userservice "github.com/jcromanu/final_project/user_service/pkg/user_service"
 	gogrpc "google.golang.org/grpc"
 )
 

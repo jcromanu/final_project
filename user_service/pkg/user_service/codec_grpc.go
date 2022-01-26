@@ -6,9 +6,9 @@ import (
 	kitGRPC "github.com/go-kit/kit/transport/grpc"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"github.com/jcromanu/final_project/errors"
-	"github.com/jcromanu/final_project/pb"
-	"github.com/jcromanu/final_project/pkg/entities"
+	"github.com/jcromanu/final_project/user_service/errors"
+	"github.com/jcromanu/final_project/user_service/pb"
+	"github.com/jcromanu/final_project/user_service/pkg/entities"
 )
 
 func makeDecodeGRPCCreateUserRequest(logger log.Logger) kitGRPC.DecodeRequestFunc {
