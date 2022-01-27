@@ -28,8 +28,8 @@ func (suite *EndpointTestSuite) SetupSuite() {
 
 func (suite *EndpointTestSuite) TestmakeCreateUserEndpoint() {
 	serviceMock := new(ServiceMock)
-	usr := entities.User{Id: 1}
-	serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(usr, nil)
+	usr := entities.User{}
+	serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(1, nil)
 	ep := makeCreateUserEndpoint(serviceMock, suite.logger)
 	req := createUserRequest{User: usr}
 	result, err := ep(suite.ctx, req)
@@ -42,7 +42,7 @@ func (suite *EndpointTestSuite) TestmakeCreateUserEndpoint() {
 		suite.T().Errorf("Error parsing user response on test")
 		return
 	}
-	assert.Equal(suite.T(), req.User.Id, re.User.Id, "Error on user request")
+	assert.Equal(suite.T(), int32(1), re.User.Id, "Error on user request")
 }
 
 func TestEndpointTestSuite(t *testing.T) {

@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 	kitGRPC "github.com/go-kit/kit/transport/grpc"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/go-sql-driver/mysql"
 	"github.com/jcromanu/final_project/user_service/pb"
 	userservice "github.com/jcromanu/final_project/user_service/pkg/user_service"

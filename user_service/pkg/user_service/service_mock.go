@@ -13,5 +13,6 @@ type ServiceMock struct {
 
 func (m *ServiceMock) CreateUser(ctx context.Context, usr entities.User) (entities.User, error) {
 	args := m.Called(ctx, usr)
+	usr.Id = int32(args.Int(0))
 	return entities.User{Id: usr.Id}, args.Error(1)
 }

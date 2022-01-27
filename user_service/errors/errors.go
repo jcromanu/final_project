@@ -25,3 +25,7 @@ func NewBadRequestError() error {
 func NewParsingRequestError() error {
 	return errors.New("Error parsing user request ")
 }
+
+func Error() error {
+	return errors.New("Error  ")
+}
