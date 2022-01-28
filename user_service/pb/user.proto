@@ -5,31 +5,8 @@ package pb;
 option go_package = "github.com/jcromanu/final_project/pb";
 
 service UserService {
-    //rpc Authenticate(TokenRequest) returns (AuthenticateResponse) ;
     rpc CreateUser(CreateUserRequest) returns (CreateUserResponse); 
-    //rpc GetUser(GetUserRequest) returns (GetUserResponse);
-    //rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
-    //rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
 }
-
-/*
-service UserDetail{
-    rpc DeleteUserDetail(DeleteUserDetailRequest) returns (DeleteUserDetailResponse);
-    rpc SetUserDetail(SetUserDetailRequest) returns(SetUserDetailResponse);
-}
-
-service HTTPService{
-    rpc Authenticate(User) returns (UserResponse);
-    rpc Create(User) returns (UserResponse); 
-    rpc Update(User) returns (UserResponse);
-    rpc Get(User) returns (UserResponse);
-    rpc List(stream User) returns (UserResponse);
-    rpc Delete(stream User) returns (UserResponse);
-    rpc Bulk(User) returns (UserResponse);
-    rpc Set(User) returns (UserResponse);
-}
-*/ 
-
 
 message User {
     int32 id =1 ;
@@ -40,63 +17,16 @@ message User {
     repeated string parent = 6; 
 }
 
-/*
-message AuthenticateRequest {
-    string token = 1;
-}*/
-
 message CreateUserRequest {
     User user = 1; 
 }
-/*
-message GetUserRequest{
-    int32 id = 1; 
-}
 
-message UpdateUserRequest {
-    User user = 1; 
-}
-
-message DeleteUserRequest {
-    int32 id = 1; 
-}
-
-message DeleteUserDetailRequest {
-    int32 id = 1;
-}
-
-message SetUserDetailRequest {
-    User SetUserDetailRequest = 1; 
-}*/
-
-/*
-message AuthenticateResponse{
-    MessageResponse message = 1;
-    string token = 2 ;
-}
-*/
 message CreateUserResponse { 
     User user = 1 ;
     MessageResponse message = 2; 
    }
    
-   /*
-   message GetUserResponse {
-       MessageResponse message = 1; 
-       User user = 2; 
-   }
-   
-   message UpdateUserResponse{
-       MessageResponse message = 1;
-   }
-   
-   message DeleteUserResponse {
-       MessageResponse message = 1; 
-   }
-   
-   */
-   
-   message MessageResponse {
+message MessageResponse {
        int32 code = 1; 
        string message = 2;
    }

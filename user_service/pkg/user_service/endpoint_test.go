@@ -6,45 +6,45 @@ import (
 	"testing"
 
 	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/jcromanu/final_project/user_service/pkg/entities"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
 )
 
-type EndpointTestSuite struct {
-	suite.Suite
-	logger log.Logger
-	ctx    context.Context
-}
-
-func (suite *EndpointTestSuite) SetupSuite() {
-	suite.logger = log.NewLogfmtLogger(os.Stderr)
-	suite.ctx = context.Background()
-	level.Info(suite.logger).Log("Iniciando Endpoint test suite ")
-}
-
-func (suite *EndpointTestSuite) TestmakeCreateUserEndpoint() {
+func TestMakeCreateUserEndpoint(t *testing.T) {
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
 	serviceMock := new(ServiceMock)
-	usr := entities.User{}
-	serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(1, nil)
-	ep := makeCreateUserEndpoint(serviceMock, suite.logger)
-	req := createUserRequest{User: usr}
-	result, err := ep(suite.ctx, req)
-	if err != nil {
-		suite.T().Errorf("Error creating user endpoint")
-		return
+	testCases := []struct {
+		testName       string
+		input          createUserRequest
+		expectedOutput int32
+		expectedError  error
+	}{
+		{
+			testName:       "create endpoint user with all fields success ",
+			input:          createUserRequest{User: entities.User{Name: "Juan", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			expectedOutput: 1,
+			expectedError:  nil,
+		},
 	}
-	re, ok := result.(createUserResponse)
-	if !ok {
-		suite.T().Errorf("Error parsing user response on test")
-		return
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(1, nil)
+			ep := makeCreateUserEndpoint(serviceMock, logger)
+			result, err := ep(ctx, tc.input)
+			if err != nil {
+				t.Errorf("Error creating user endpoint")
+				return
+			}
+			re, ok := result.(createUserResponse)
+			if !ok {
+				t.Errorf("Error parsing user response on test")
+				return
+			}
+			assert.Equal(t, tc.expectedOutput, re.User.Id, "Error on user response")
+			assert.Equal(t, tc.expectedError, err, "Error on user response")
+		})
 	}
-	assert.Equal(suite.T(), int32(1), re.User.Id, "Error on user request")
-}
-
-func TestEndpointTestSuite(t *testing.T) {
-	suite.Run(t, new(EndpointTestSuite))
 }

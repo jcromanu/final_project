@@ -38,6 +38,10 @@ func NewErrBadRouting() error {
 	return errors.New("inconsistent mapping between route and handler (programmer error)")
 }
 
+func NewEmptyFieldError() error {
+	return errors.New("One or more fields must be not null")
+}
+
 func ResolveHTTP(c codes.Code) int {
 	switch c {
 	case codes.FailedPrecondition:

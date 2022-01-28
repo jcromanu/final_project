@@ -11,6 +11,7 @@ func decodePostCreateUserRequest(_ context.Context, r *http.Request) (request in
 	if e := json.NewDecoder(r.Body).Decode(&req); e != nil {
 		return nil, e
 	}
+
 	return req, nil
 }
 

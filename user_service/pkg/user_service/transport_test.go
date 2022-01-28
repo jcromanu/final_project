@@ -10,41 +10,44 @@ import (
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/jcromanu/final_project/user_service/pb"
+	"github.com/jcromanu/final_project/user_service/pkg/entities"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
 )
 
-type TransportTestSuite struct {
-	suite.Suite
-	logger      log.Logger
-	ctx         context.Context
-	middlewares []endpoint.Middleware
-	opts        []grpc.ServerOption
-}
-
-func (suite *TransportTestSuite) SetupSuite() {
-	suite.logger = log.NewLogfmtLogger(os.Stderr)
-	suite.ctx = context.Background()
-	suite.middlewares = []endpoint.Middleware{}
-	suite.opts = []grpc.ServerOption{}
-	level.Info(suite.logger).Log("Iniciando Transport test suite ")
-}
-
-func (suite *TransportTestSuite) TestCreateUser() {
+func TestTransportCreateUser(t *testing.T) {
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	middlewares := []endpoint.Middleware{}
+	opts := []grpc.ServerOption{}
 	srvMock := new(ServiceMock)
-	srvMock.On("CreateUser", mock.Anything, mock.Anything).Return(1, nil)
-	endpoints := MakeEndpoints(srvMock, suite.logger, suite.middlewares)
-	grpcServer := NewGRPCServer(endpoints, suite.opts, suite.logger)
-	res, err := grpcServer.CreateUser(suite.ctx, &pb.CreateUserRequest{User: &pb.User{Id: 1}})
-	if err != nil {
-		suite.T().Errorf(err.Error())
-		return
-	}
-	assert.Equal(suite.T(), int32(1), res.User.Id, "Different user id s")
-}
 
-func TestTransportTestSuite(t *testing.T) {
-	suite.Run(t, new(TransportTestSuite))
+	testCases := []struct {
+		testName       string
+		input          createUserRequest
+		expectedOutput int32
+		expectedError  error
+	}{
+		{
+			testName:       "test serve endpoint user with all fields success  ",
+			input:          createUserRequest{User: entities.User{Name: "Juan", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			expectedOutput: 1,
+			expectedError:  nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			level.Info(logger).Log("Iniciando Transport test suite ")
+			srvMock.On("CreateUser", mock.Anything, mock.Anything).Return(1, nil)
+			endpoints := MakeEndpoints(srvMock, logger, middlewares)
+			grpcServer := NewGRPCServer(endpoints, opts, logger)
+			res, err := grpcServer.CreateUser(ctx, &pb.CreateUserRequest{User: &pb.User{Id: 1}})
+			if err != nil {
+				t.Errorf(err.Error())
+				return
+			}
+			assert.Equal(t, tc.expectedOutput, res.User.Id, "Different user id s")
+		})
+	}
 }
