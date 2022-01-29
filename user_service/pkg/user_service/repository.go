@@ -16,10 +16,6 @@ const (
 	VALUES(?,?,?,?,?)`
 )
 
-type UserRepository interface {
-	CreateUser(context.Context, entities.User) (int32, error)
-}
-
 type userRepository struct {
 	db  *sql.DB
 	log log.Logger

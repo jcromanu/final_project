@@ -15,13 +15,17 @@ type Endpoints struct {
 	CreateUser endpoint.Endpoint
 }
 
-func MakeEndpoints(srv HTTPService, logger log.Logger, middlewares []endpoint.Middleware) Endpoints {
+type Service interface {
+	CreateUser(context.Context, entities.User) (entities.User, error)
+}
+
+func MakeEndpoints(srv Service, logger log.Logger, middlewares []endpoint.Middleware) Endpoints {
 	return Endpoints{
 		CreateUser: makeCreateUserEndpoint(srv, logger),
 	}
 }
 
-func makeCreateUserEndpoint(srv HTTPService, logger log.Logger) endpoint.Endpoint {
+func makeCreateUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(createUserRequest)
 		if !ok {

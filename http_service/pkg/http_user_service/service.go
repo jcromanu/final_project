@@ -16,12 +16,16 @@ type HTTPService interface {
 }
 
 type HttpService struct {
-	repo      HttpRepository
+	repo      Repository
 	log       log.Logger
 	validator *validator.Validate
 }
 
-func NewHttpService(repo HttpRepository, logger log.Logger) *HttpService {
+type Repository interface {
+	CreateUser(context.Context, entities.User) (int32, error)
+}
+
+func NewHttpService(repo Repository, logger log.Logger) *HttpService {
 	return &HttpService{
 		repo:      repo,
 		log:       logger,

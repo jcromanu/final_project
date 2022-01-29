@@ -11,10 +11,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-type HttpRepository interface {
-	CreateUser(context.Context, entities.User) (int32, error)
-}
-
 type httpRespository struct {
 	client pb.UserServiceClient
 	log    log.Logger

@@ -15,6 +15,10 @@ type Endpoints struct {
 	CreateUser endpoint.Endpoint
 }
 
+type Service interface {
+	CreateUser(ctx context.Context, user entities.User) (entities.User, error)
+}
+
 func MakeEndpoints(srv Service, logger log.Logger, middlewares []endpoint.Middleware) Endpoints {
 	return Endpoints{
 		//CreateUser: wrapEndpoints(makeCreateUserEndpoint(srv, logger), middlewares), completar cuando vea lo de middlewares

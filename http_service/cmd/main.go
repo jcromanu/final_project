@@ -60,7 +60,7 @@ func main() {
 		errs <- http.ListenAndServe(*httpAddr, httpserver)
 	}()
 
-	logger.Log("http client server exit", <-errs)
+	logger.Log("http client server closing on error ", <-errs)
 }
 
 type serverConfig struct {
