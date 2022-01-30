@@ -50,7 +50,7 @@ func main() {
 	httpPort := fmt.Sprintf(":%d", cfg.HttpPort)
 	httpAddr := flag.String("http.addr", httpPort, "HTTP listen address")
 
-	repo := httpuserservice.NewHttpRespository(userGRPC, logger)
+	repo := httpuserservice.NewRespository(userGRPC, logger)
 	srv := httpuserservice.NewHttpService(repo, logger)
 	endpoints := httpuserservice.MakeEndpoints(srv, logger, middlewares)
 	httpserver := httpuserservice.NewHTTPServer(endpoints, logger)

@@ -12,7 +12,7 @@ import (
 )
 
 func TestCreateUserEndpoint(t *testing.T) {
-	httpRepoMock := new(HttpRepositoryMock)
+	httpRepoMock := new(RepositoryMock)
 	logger := log.NewLogfmtLogger(os.Stderr)
 	testCases := []struct {
 		testName       string
@@ -33,7 +33,7 @@ func TestCreateUserEndpoint(t *testing.T) {
 			ctx := context.Background()
 			assert := assert.New(t)
 			inputUser := tc.input
-			httpRepoMock.On("CreateUser", mock.Anything, mock.Anything).Return(1, nil)
+			httpRepoMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
 			httpSrv := NewHttpService(httpRepoMock, logger)
 			usr, err := httpSrv.CreateUser(ctx, inputUser)
 			assert.Equal(tc.expectedOutput, usr.Id, "User creation fail ")

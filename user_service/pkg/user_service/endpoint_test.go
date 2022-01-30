@@ -31,7 +31,7 @@ func TestMakeCreateUserEndpoint(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
-			serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(1, nil)
+			serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
 			ep := makeCreateUserEndpoint(serviceMock, logger)
 			result, err := ep(ctx, tc.input)
 			if err != nil {

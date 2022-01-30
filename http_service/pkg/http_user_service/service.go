@@ -11,10 +11,6 @@ import (
 	"github.com/jcromanu/final_project/http_service/pkg/entities"
 )
 
-type HTTPService interface {
-	CreateUser(context.Context, entities.User) (entities.User, error)
-}
-
 type HttpService struct {
 	repo      Repository
 	log       log.Logger

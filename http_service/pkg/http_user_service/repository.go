@@ -11,19 +11,19 @@ import (
 	"google.golang.org/grpc"
 )
 
-type httpRespository struct {
+type repository struct {
 	client pb.UserServiceClient
 	log    log.Logger
 }
 
-func NewHttpRespository(conn *grpc.ClientConn, log log.Logger) *httpRespository {
-	return &httpRespository{
+func NewRespository(conn *grpc.ClientConn, log log.Logger) *repository {
+	return &repository{
 		client: pb.NewUserServiceClient(conn),
 		log:    log,
 	}
 }
 
-func (r *httpRespository) CreateUser(ctx context.Context, usr entities.User) (int32, error) {
+func (r *repository) CreateUser(ctx context.Context, usr entities.User) (int32, error) {
 	usrReq := &pb.CreateUserRequest{User: &pb.User{PwdHash: usr.Pwd_hash, Name: usr.Name, Age: usr.Age, AdditionalInformation: usr.Additional_information, Parent: usr.Parent}}
 	userResponse, err := r.client.CreateUser(ctx, usrReq)
 	if err != nil {

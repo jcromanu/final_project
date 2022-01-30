@@ -7,11 +7,12 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type HttpRepositoryMock struct {
+type RepositoryMock struct {
 	mock.Mock
 }
 
-func (m *HttpRepositoryMock) CreateUser(ctx context.Context, usr entities.User) (int32, error) {
+func (m *RepositoryMock) CreateUser(ctx context.Context, usr entities.User) (int32, error) {
 	args := m.Called(ctx, usr)
-	return int32(args.Int(0)), args.Error(1)
+	id := args.Get(0).(int32)
+	return id, args.Error(1)
 }

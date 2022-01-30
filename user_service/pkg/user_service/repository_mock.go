@@ -13,5 +13,6 @@ type RepositoryMock struct {
 
 func (m *RepositoryMock) CreateUser(ctx context.Context, usr entities.User) (int32, error) {
 	args := m.Called(ctx, usr)
-	return int32(args.Int(0)), args.Error(1)
+	id := args.Get(0).(int32)
+	return id, args.Error(1)
 }

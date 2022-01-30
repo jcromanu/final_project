@@ -12,7 +12,7 @@ import (
 )
 
 func TestMakeCreateHTTPUserEndpooint(t *testing.T) {
-	serviceMock := new(HTTPServiceMock)
+	serviceMock := new(ServiceMock)
 	logger := log.NewLogfmtLogger(os.Stderr)
 	testCases := []struct {
 		testName       string
@@ -32,7 +32,7 @@ func TestMakeCreateHTTPUserEndpooint(t *testing.T) {
 			ctx := context.Background()
 			assert := assert.New(t)
 			inputRequest := tc.input
-			serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(1, nil)
+			serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
 			ep := makeCreateUserEndpoint(serviceMock, logger)
 			result, err := ep(ctx, inputRequest)
 			if err != nil {

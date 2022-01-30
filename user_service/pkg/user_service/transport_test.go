@@ -39,7 +39,7 @@ func TestTransportCreateUser(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
 			level.Info(logger).Log("Iniciando Transport test suite ")
-			srvMock.On("CreateUser", mock.Anything, mock.Anything).Return(1, nil)
+			srvMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
 			endpoints := MakeEndpoints(srvMock, logger, middlewares)
 			grpcServer := NewGRPCServer(endpoints, opts, logger)
 			res, err := grpcServer.CreateUser(ctx, &pb.CreateUserRequest{User: &pb.User{Id: 1}})

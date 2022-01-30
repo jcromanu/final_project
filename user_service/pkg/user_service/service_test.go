@@ -25,13 +25,13 @@ func TestServiceCreateUser(t *testing.T) {
 		{
 			testName:       "create user with all fields",
 			input:          entities.User{Name: "Juan", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}},
-			expectedOutput: int32(1),
+			expectedOutput: 1,
 			expectedError:  nil,
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
-			repoMock.On("CreateUser", mock.Anything, mock.Anything).Return(1, nil)
+			repoMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
 			service := NewService(repoMock, logger)
 			usr, err := service.CreateUser(ctx, tc.input)
 			assert.Equal(t, tc.expectedOutput, usr.Id)

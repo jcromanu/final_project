@@ -15,7 +15,7 @@ import (
 )
 
 func TestCreateUserTransport(t *testing.T) {
-	serviceMock := new(HTTPServiceMock)
+	serviceMock := new(ServiceMock)
 	logger := log.NewLogfmtLogger(os.Stderr)
 	middlewares := []endpoint.Middleware{}
 	testCases := []struct {
@@ -42,7 +42,7 @@ func TestCreateUserTransport(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
 			assert := assert.New(t)
-			serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(1, nil)
+			serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
 			endpoints := MakeEndpoints(serviceMock, logger, middlewares)
 			httpServer := NewHTTPServer(endpoints, logger)
 			server := httptest.NewServer(httpServer)
