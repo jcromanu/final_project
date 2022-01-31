@@ -6,36 +6,36 @@ import (
 	"testing"
 
 	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 
 	"github.com/jcromanu/final_project/user_service/pkg/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
 )
 
-type ServiceTestSuite struct {
-	suite.Suite
-	logger log.Logger
-	ctx    context.Context
-}
-
-func (suite *ServiceTestSuite) SetupSuite() {
-	suite.logger = log.NewLogfmtLogger(os.Stderr)
-	suite.ctx = context.Background()
-	level.Info(suite.logger).Log("Iniciando Service test suite ")
-}
-
-func (suite *ServiceTestSuite) TestCreateUserSuccess() {
-	usr := entities.User{}
+func TestServiceCreateUser(t *testing.T) {
 	repoMock := new(RepositoryMock)
-	repoMock.On("CreateUser", mock.Anything, mock.Anything).Return(1, nil)
-	service := NewService(repoMock, suite.logger)
-	usr, actualErr := service.CreateUser(suite.ctx, usr)
-	assert.Equal(suite.T(), int32(1), usr.Id)
-	assert.Equal(suite.T(), nil, actualErr)
-}
-
-func TestServiceTestSuite(t *testing.T) {
-	suite.Run(t, new(ServiceTestSuite))
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	testCases := []struct {
+		testName       string
+		input          entities.User
+		expectedOutput int32
+		expectedError  error
+	}{
+		{
+			testName:       "create user with all fields",
+			input:          entities.User{Name: "Juan", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}},
+			expectedOutput: 1,
+			expectedError:  nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			repoMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
+			service := NewService(repoMock, logger)
+			usr, err := service.CreateUser(ctx, tc.input)
+			assert.Equal(t, tc.expectedOutput, usr.Id)
+			assert.Equal(t, tc.expectedError, err)
+		})
+	}
 }

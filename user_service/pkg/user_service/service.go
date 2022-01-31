@@ -11,16 +11,16 @@ import (
 	"github.com/jcromanu/final_project/user_service/pkg/entities"
 )
 
-type Service interface {
-	CreateUser(ctx context.Context, user entities.User) (entities.User, error)
-}
-
 type UserService struct {
-	repo   UserRepository
+	repo   Repository
 	logger log.Logger
 }
 
-func NewService(repo UserRepository, logger log.Logger) *UserService {
+type Repository interface {
+	CreateUser(context.Context, entities.User) (int32, error)
+}
+
+func NewService(repo Repository, logger log.Logger) *UserService {
 	return &UserService{
 		repo:   repo,
 		logger: logger,

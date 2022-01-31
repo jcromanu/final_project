@@ -16,14 +16,6 @@ const (
 	VALUES(?,?,?,?,?)`
 )
 
-type UserRepository interface {
-	CreateUser(context.Context, entities.User) (int32, error)
-	/*GetUser(context.Context, int) (entities.User, error)
-	UpdateUser(context.Context, entities.User) (entities.User, error)
-	DeleteUser(context.Context, int) (bool, error)
-	Authenticate(context.Context, string, string) (bool, error)*/
-}
-
 type userRepository struct {
 	db  *sql.DB
 	log log.Logger

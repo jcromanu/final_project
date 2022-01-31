@@ -1,9 +1,9 @@
-package userservice
+package httpuserservice
 
 import (
 	"context"
 
-	"github.com/jcromanu/final_project/user_service/pkg/entities"
+	"github.com/jcromanu/final_project/http_service/pkg/entities"
 	"github.com/stretchr/testify/mock"
 )
 

@@ -14,66 +14,40 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
 )
 
-type TransportTestSuite struct {
-	suite.Suite
-	logger      log.Logger
-	ctx         context.Context
-	middlewares []endpoint.Middleware
-	opts        []grpc.ServerOption
-}
-
-func (suite *TransportTestSuite) SetupSuite() {
-	suite.logger = log.NewLogfmtLogger(os.Stderr)
-	suite.ctx = context.Background()
-	suite.middlewares = []endpoint.Middleware{}
-	suite.opts = []grpc.ServerOption{}
-	level.Info(suite.logger).Log("Iniciando Transport test suite ")
-}
-
-/* Segunda opcion de implementacion de pruebas
-
-type serverGRPCMock struct {
-	mock.Mock
-}
-
-func (m *serverGRPCMock) ServeGRPC(ctx context.Context, req interface{}) (rect context.Context, resp interface{}, err error) {
-	args := m.Called(ctx, req)
-	return args.Get(0).(context.Context), args.Get(1), nil
-}
-
-func (suite *TransportTestSuite) TestCreateUser() {
-	serverGRPCMock := &serverGRPCMock{}
-	pbMockRes := &pb.CreateUserResponse{User: &pb.User{Id: 1}}
-	serverGRPCMock.On("ServeGRPC", mock.Anything, mock.Anything).Return(suite.ctx, pbMockRes, nil)
-	endpoints := Endpoints{}
-	opts := []kitGRPC.ServerOption{}
-	grpcServer := NewGRPCServer(endpoints, opts, suite.logger)
-	usr := &pb.User{Id: 1}
-	req := &pb.CreateUserRequest{User: usr}
-	finalServer := grpcServer.(*userServiceServer)
-	finalServer.createUser :=
-	res, err := finalServer.CreateUser(suite.ctx, req)
-	assert.Equal(suite.T(), req.User.Id, res.User.Id, "Error on assertion")
-	assert.Equal(suite.T(), nil, err, "Error on assertion")
-}*/
-
-func (suite *TransportTestSuite) TestCreateUser() {
+func TestTransportCreateUser(t *testing.T) {
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	middlewares := []endpoint.Middleware{}
+	opts := []grpc.ServerOption{}
 	srvMock := new(ServiceMock)
-	usrReq := &entities.User{Id: 1}
-	srvMock.On("CreateUser", mock.Anything, mock.Anything).Return(usrReq, nil)
-	endpoints := MakeEndpoints(srvMock, suite.logger, suite.middlewares)
-	grpcServer := NewGRPCServer(endpoints, suite.opts, suite.logger)
-	res, err := grpcServer.CreateUser(suite.ctx, &pb.CreateUserRequest{User: &pb.User{Id: 1}})
-	if err != nil {
-		suite.T().Errorf(err.Error())
-		return
-	}
-	assert.Equal(suite.T(), usrReq.Id, res.User.Id, "Different user id s")
-}
 
-func TestTransportTestSuite(t *testing.T) {
-	suite.Run(t, new(TransportTestSuite))
+	testCases := []struct {
+		testName       string
+		input          createUserRequest
+		expectedOutput int32
+		expectedError  error
+	}{
+		{
+			testName:       "test serve endpoint user with all fields success  ",
+			input:          createUserRequest{User: entities.User{Name: "Juan", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			expectedOutput: 1,
+			expectedError:  nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			level.Info(logger).Log("Iniciando Transport test suite ")
+			srvMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
+			endpoints := MakeEndpoints(srvMock, logger, middlewares)
+			grpcServer := NewGRPCServer(endpoints, opts, logger)
+			res, err := grpcServer.CreateUser(ctx, &pb.CreateUserRequest{User: &pb.User{Id: 1}})
+			if err != nil {
+				t.Errorf(err.Error())
+				return
+			}
+			assert.Equal(t, tc.expectedOutput, res.User.Id, "Different user id s")
+		})
+	}
 }

@@ -1,4 +1,4 @@
-package userservice
+package httpuserservice
 
 import (
 	"context"
@@ -6,16 +6,14 @@ import (
 	"testing"
 
 	"github.com/go-kit/log"
-	"github.com/jcromanu/final_project/user_service/pkg/entities"
-
+	"github.com/jcromanu/final_project/http_service/pkg/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func TestMakeCreateUserEndpoint(t *testing.T) {
-	logger := log.NewLogfmtLogger(os.Stderr)
-	ctx := context.Background()
+func TestMakeCreateHTTPUserEndpooint(t *testing.T) {
 	serviceMock := new(ServiceMock)
+	logger := log.NewLogfmtLogger(os.Stderr)
 	testCases := []struct {
 		testName       string
 		input          createUserRequest
@@ -23,17 +21,20 @@ func TestMakeCreateUserEndpoint(t *testing.T) {
 		expectedError  error
 	}{
 		{
-			testName:       "create endpoint user with all fields success ",
-			input:          createUserRequest{User: entities.User{Name: "Juan", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			testName:       "endpoint valid user",
+			input:          createUserRequest{entities.User{Name: "Juan", Pwd_hash: "ooo", Age: 31, Additional_information: "no info", Parent: []string{}}},
 			expectedOutput: 1,
 			expectedError:  nil,
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
+			ctx := context.Background()
+			assert := assert.New(t)
+			inputRequest := tc.input
 			serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
 			ep := makeCreateUserEndpoint(serviceMock, logger)
-			result, err := ep(ctx, tc.input)
+			result, err := ep(ctx, inputRequest)
 			if err != nil {
 				t.Errorf("Error creating user endpoint")
 				return
@@ -43,8 +44,7 @@ func TestMakeCreateUserEndpoint(t *testing.T) {
 				t.Errorf("Error parsing user response on test")
 				return
 			}
-			assert.Equal(t, tc.expectedOutput, re.User.Id, "Error on user response")
-			assert.Equal(t, tc.expectedError, err, "Error on user response")
+			assert.Equal(tc.expectedOutput, re.User.Id, "Error on user request ")
 		})
 	}
 }
