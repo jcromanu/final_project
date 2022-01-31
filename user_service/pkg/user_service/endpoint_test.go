@@ -48,3 +48,40 @@ func TestMakeCreateUserEndpoint(t *testing.T) {
 		})
 	}
 }
+
+func TestMakeGetUserEndpoint(t *testing.T) {
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	serviceMock := new(ServiceMock)
+	testCases := []struct {
+		testName       string
+		input          getUserRequest
+		expectedOutput entities.User
+		expectedError  error
+	}{
+		{
+			testName:       "get  endpoint user with all fields success ",
+			input:          getUserRequest{Id: 1},
+			expectedOutput: entities.User{Id: 1},
+			expectedError:  nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			serviceMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.input.Id, tc.expectedError)
+			ep := makeGetUserEndpoint(serviceMock, logger)
+			result, err := ep(ctx, tc.input)
+			if err != nil {
+				t.Errorf("Error creating user endpoint")
+				return
+			}
+			re, ok := result.(getUserResponse)
+			if !ok {
+				t.Errorf("Error parsing user response on test")
+				return
+			}
+			assert.Equal(t, tc.expectedOutput, re.User, "Error on user response")
+			assert.Equal(t, tc.expectedError, err, "Error on user response")
+		})
+	}
+}

@@ -27,4 +27,12 @@ func main() {
 		log.Fatal("Error on simple rpc ", err)
 	}
 	fmt.Print("User id:", response.User.Id)
+
+	fmt.Println("Starting get user")
+	getUserReq := &pb.GetUserRequest{Id: 53}
+	getRes, err := client.GetUser(context.Background(), getUserReq)
+	if err != nil {
+		log.Fatal("Error on simple rpc ", err)
+	}
+	fmt.Print("User id:", getRes.User.Name)
 }

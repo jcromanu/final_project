@@ -39,3 +39,25 @@ func makeEncodeGRPCCReateUserResponse(logger log.Logger) kitGRPC.EncodeResponseF
 		return &pb.CreateUserResponse{User: &pb.User{Id: res.User.Id, PwdHash: res.User.Pwd_hash, Name: res.User.Name, Age: res.User.Age, Parent: res.User.Parent, AdditionalInformation: res.User.Additional_information}, Message: &pb.MessageResponse{Code: res.Message.Code, Message: res.Message.Message}}, nil
 	}
 }
+
+func makeDecodeGRPCGetUserRequest(logger log.Logger) kitGRPC.DecodeRequestFunc {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		pbReq, ok := req.(*pb.GetUserRequest)
+		if !ok {
+			level.Error(logger).Log("Get user request pb not matched")
+			return nil, errors.NewParsingRequestError()
+		}
+		return getUserRequest{pbReq.Id}, nil
+	}
+}
+
+func makeEncodeGRPCGetUserResponse(logger log.Logger) kitGRPC.EncodeResponseFunc {
+	return func(ctx context.Context, resp interface{}) (request interface{}, err error) {
+		res, ok := resp.(getUserResponse)
+		if !ok {
+			level.Error(logger).Log("Get user response  pb not matched")
+			return nil, errors.NewParsingRequestError()
+		}
+		return &pb.GetUserResponse{User: &pb.User{Id: res.User.Id, PwdHash: res.User.Pwd_hash, Name: res.User.Name, Age: res.User.Age, AdditionalInformation: res.User.Additional_information}, Message: &pb.MessageResponse{Code: res.Message.Code, Message: res.Message.Message}}, nil
+	}
+}

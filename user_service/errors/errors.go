@@ -26,6 +26,10 @@ func NewParsingRequestError() error {
 	return errors.New("Error parsing user request ")
 }
 
+func NewUserNotFoundError() error {
+	return errors.New("Error retrieving user from db ")
+}
+
 func Error() error {
 	return errors.New("Error  ")
 }

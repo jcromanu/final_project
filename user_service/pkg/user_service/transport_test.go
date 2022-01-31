@@ -51,3 +51,39 @@ func TestTransportCreateUser(t *testing.T) {
 		})
 	}
 }
+
+func TestTransportGetUser(t *testing.T) {
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	middlewares := []endpoint.Middleware{}
+	opts := []grpc.ServerOption{}
+	srvMock := new(ServiceMock)
+
+	testCases := []struct {
+		testName       string
+		input          getUserRequest
+		expectedOutput entities.User
+		expectedError  error
+	}{
+		{
+			testName:       "test serve endpoint user with all fields success  ",
+			input:          getUserRequest{Id: 1},
+			expectedOutput: entities.User{Id: 1},
+			expectedError:  nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			level.Info(logger).Log("Iniciando Transport test suite ")
+			srvMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.input.Id, tc.expectedError)
+			endpoints := MakeEndpoints(srvMock, logger, middlewares)
+			grpcServer := NewGRPCServer(endpoints, opts, logger)
+			res, err := grpcServer.GetUser(ctx, &pb.GetUserRequest{Id: tc.input.Id})
+			if err != nil {
+				t.Errorf(err.Error())
+				return
+			}
+			assert.Equal(t, tc.expectedOutput.Id, res.User.Id, "User not retrieved")
+		})
+	}
+}
