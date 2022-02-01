@@ -39,3 +39,31 @@ func TestServiceCreateUser(t *testing.T) {
 		})
 	}
 }
+
+func TestServiceGetUser(t *testing.T) {
+	repoMock := new(RepositoryMock)
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	testCases := []struct {
+		testName       string
+		input          int32
+		expectedOutput entities.User
+		expectedError  error
+	}{
+		{
+			testName:       "get user valid id",
+			input:          1,
+			expectedOutput: entities.User{Id: 1},
+			expectedError:  nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			repoMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.input, tc.expectedError)
+			service := NewService(repoMock, logger)
+			usr, err := service.GetUser(ctx, tc.input)
+			assert.Equal(t, tc.expectedOutput, usr)
+			assert.Equal(t, tc.expectedError, err)
+		})
+	}
+}

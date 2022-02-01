@@ -19,6 +19,7 @@ type HttpService struct {
 
 type Repository interface {
 	CreateUser(context.Context, entities.User) (int32, error)
+	GetUser(context.Context, int32) (entities.User, error)
 }
 
 func NewHttpService(repo Repository, logger log.Logger) *HttpService {
@@ -40,4 +41,16 @@ func (srv *HttpService) CreateUser(ctx context.Context, usr entities.User) (enti
 	}
 	usr.Id = id
 	return usr, err
+}
+
+func (srv *HttpService) GetUser(ctx context.Context, id int32) (entities.User, error) {
+	if id <= 0 {
+		return entities.User{}, errors.NewEmptyFieldError()
+	}
+	usr, err := srv.repo.GetUser(ctx, id)
+	if err != nil {
+		level.Error(srv.log).Log("Error getting user from grpc service  :", err)
+		return entities.User{}, err
+	}
+	return usr, nil
 }

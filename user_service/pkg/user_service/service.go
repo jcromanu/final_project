@@ -18,6 +18,7 @@ type UserService struct {
 
 type Repository interface {
 	CreateUser(context.Context, entities.User) (int32, error)
+	GetUser(context.Context, int32) (entities.User, error)
 }
 
 func NewService(repo Repository, logger log.Logger) *UserService {
@@ -35,4 +36,13 @@ func (srv *UserService) CreateUser(ctx context.Context, user entities.User) (ent
 	}
 	user.Id = id
 	return user, err
+}
+
+func (srv *UserService) GetUser(ctx context.Context, id int32) (entities.User, error) {
+	usr, err := srv.repo.GetUser(ctx, id)
+	if err != nil {
+		level.Error(srv.logger).Log("Error retrieving  user in database:", err)
+		return entities.User{}, err
+	}
+	return usr, err
 }

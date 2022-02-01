@@ -12,6 +12,7 @@ import (
 
 type userServiceServer struct {
 	createUser *kitGRPC.Server
+	getUser    *kitGRPC.Server
 	pb.UnimplementedUserServiceServer
 }
 
@@ -24,9 +25,19 @@ func makeCreateUserGRPCServer(ep endpoint.Endpoint, opts []kitGRPC.ServerOption,
 	)
 }
 
+func makeGetUserGRPCServer(ep endpoint.Endpoint, opts []kitGRPC.ServerOption, logger log.Logger) *kitGRPC.Server {
+	return kitGRPC.NewServer(
+		ep,
+		makeDecodeGRPCGetUserRequest(logger),
+		makeEncodeGRPCGetUserResponse(logger),
+		opts...,
+	)
+}
+
 func NewGRPCServer(ep Endpoints, opts []kitGRPC.ServerOption, log log.Logger) pb.UserServiceServer {
 	return &userServiceServer{
 		createUser: makeCreateUserGRPCServer(ep.CreateUser, opts, log),
+		getUser:    makeGetUserGRPCServer(ep.GetUser, opts, log),
 	}
 }
 
@@ -36,6 +47,18 @@ func (srv *userServiceServer) CreateUser(ctx context.Context, req *pb.CreateUser
 		return nil, err
 	}
 	r, ok := resp.(*pb.CreateUserResponse)
+	if !ok {
+		return nil, errors.NewBadResponseTypeError()
+	}
+	return r, nil
+}
+
+func (srv *userServiceServer) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserResponse, error) {
+	_, resp, err := srv.getUser.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	r, ok := resp.(*pb.GetUserResponse)
 	if !ok {
 		return nil, errors.NewBadResponseTypeError()
 	}

@@ -16,3 +16,10 @@ func (m *ServiceMock) CreateUser(ctx context.Context, usr entities.User) (entiti
 	usr.Id = args.Get(0).(int32)
 	return entities.User{Id: usr.Id}, args.Error(1)
 }
+
+func (m *ServiceMock) GetUser(ctx context.Context, id int32) (entities.User, error) {
+	args := m.Called(ctx, id)
+	parsedID := args.Get(0).(int32)
+	usr := entities.User{Id: parsedID}
+	return usr, args.Error(1)
+}
