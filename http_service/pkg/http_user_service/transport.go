@@ -10,6 +10,7 @@ import (
 	"github.com/go-kit/log"
 	"github.com/gorilla/mux"
 	"github.com/jcromanu/final_project/http_service/errors"
+	"google.golang.org/grpc/status"
 )
 
 func NewHTTPServer(e Endpoints, logger log.Logger) http.Handler {
@@ -25,27 +26,23 @@ func NewHTTPServer(e Endpoints, logger log.Logger) http.Handler {
 		encodeResponse,
 		opt...,
 	))
+	r.Methods("GET").Path("/users/{id}").Handler(httptransport.NewServer(
+		e.GetUser,
+		decodeGetCreateUserRequest,
+		encodeResponse,
+		opt...,
+	))
 	return r
 }
 
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
-	if err == nil {
-		panic("encodeError with nil error")
+	e, ok := status.FromError(err)
+	if !ok {
+		panic("Not supported error")
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(codeFrom(err))
+	w.WriteHeader(errors.GrpcToHTTPCode(e.Code()))
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"error": err.Error(),
+		"error": e.Message(),
 	})
-}
-
-func codeFrom(err error) int {
-	switch err {
-	case errors.ErrNotFound:
-		return http.StatusNotFound
-	case errors.ErrAlreadyExists, errors.ErrInconsistentIDs:
-		return http.StatusBadRequest
-	default:
-		return http.StatusInternalServerError
-	}
 }

@@ -1,6 +1,7 @@
 package httpuserservice
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -47,6 +48,40 @@ func TestCreateUserTransport(t *testing.T) {
 			httpServer := NewHTTPServer(endpoints, logger)
 			server := httptest.NewServer(httpServer)
 			res, _ := http.Post(server.URL+"/users", "application/json", strings.NewReader(tc.input))
+			defer server.Close()
+			assert.Equal(tc.expectedStatus, res.StatusCode)
+		})
+	}
+}
+
+func TestGetUserTransport(t *testing.T) {
+	serviceMock := new(ServiceMock)
+	logger := log.NewLogfmtLogger(os.Stderr)
+	middlewares := []endpoint.Middleware{}
+	testCases := []struct {
+		testName       string
+		input          int32
+		expectedOutput int32
+		expectedError  error
+		expectedStatus int
+	}{
+		{
+			testName:       "transport empty user creation",
+			input:          1,
+			expectedOutput: 1,
+			expectedError:  nil,
+			expectedStatus: 200,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			assert := assert.New(t)
+			serviceMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
+			endpoints := MakeEndpoints(serviceMock, logger, middlewares)
+			httpServer := NewHTTPServer(endpoints, logger)
+			server := httptest.NewServer(httpServer)
+			res, _ := http.Get(server.URL + "/users/" + fmt.Sprintf("%v", tc.expectedOutput))
 			defer server.Close()
 			assert.Equal(tc.expectedStatus, res.StatusCode)
 		})

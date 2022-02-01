@@ -21,7 +21,7 @@ func TestMakeCreateHTTPUserEndpooint(t *testing.T) {
 		expectedError  error
 	}{
 		{
-			testName:       "endpoint valid user",
+			testName:       "endpoint  create valid user",
 			input:          createUserRequest{entities.User{Name: "Juan", Pwd_hash: "ooo", Age: 31, Additional_information: "no info", Parent: []string{}}},
 			expectedOutput: 1,
 			expectedError:  nil,
@@ -45,6 +45,44 @@ func TestMakeCreateHTTPUserEndpooint(t *testing.T) {
 				return
 			}
 			assert.Equal(tc.expectedOutput, re.User.Id, "Error on user request ")
+		})
+	}
+}
+
+func TestMakeGetHTTPUserEndpooint(t *testing.T) {
+	serviceMock := new(ServiceMock)
+	logger := log.NewLogfmtLogger(os.Stderr)
+	testCases := []struct {
+		testName       string
+		input          getUserRequest
+		expectedOutput entities.User
+		expectedError  error
+	}{
+		{
+			testName:       "endpoint get valid user",
+			input:          getUserRequest{Id: 1},
+			expectedOutput: entities.User{Id: 1, Name: "Juan"},
+			expectedError:  nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			ctx := context.Background()
+			assert := assert.New(t)
+			inputRequest := tc.input
+			serviceMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.expectedOutput.Id, tc.expectedError)
+			ep := makeGetUserEndpoint(serviceMock, logger)
+			result, err := ep(ctx, inputRequest)
+			if err != nil {
+				t.Errorf("Error creating user endpoint")
+				return
+			}
+			re, ok := result.(getUserResponse)
+			if !ok {
+				t.Errorf("Error parsing user response on test")
+				return
+			}
+			assert.Equal(tc.expectedOutput, re.User, "Error on user request ")
 		})
 	}
 }

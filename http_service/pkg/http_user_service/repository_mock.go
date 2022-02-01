@@ -16,3 +16,8 @@ func (m *RepositoryMock) CreateUser(ctx context.Context, usr entities.User) (int
 	id := args.Get(0).(int32)
 	return id, args.Error(1)
 }
+
+func (m *RepositoryMock) GetUser(ctx context.Context, id int32) (entities.User, error) {
+	args := m.Called(ctx, id)
+	return entities.User{Id: id, Name: "Juan"}, args.Error(1)
+}

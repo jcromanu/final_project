@@ -1,33 +1,38 @@
 package errors
 
-import "errors"
+import (
+	"errors"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+func NewUserNotFoundError() error {
+	return status.Error(codes.NotFound, "User not found ")
+}
 
 func NewInternalError() error {
-	return errors.New("Internal service error")
-}
-
-func NewDatabaseError() error {
-	return errors.New("Database error")
-}
-
-func NewBadTypeError() error {
-	return errors.New("Bad type error ")
+	return status.Error(codes.Internal, "Internal error")
 }
 
 func NewBadResponseTypeError() error {
-	return errors.New("Bad response type error ")
+	return status.Error(codes.Internal, "Malformed response  ")
 }
 
 func NewBadRequestError() error {
-	return errors.New("Bad request for method ")
+	return status.Error(codes.InvalidArgument, "Bad request")
 }
 
 func NewParsingRequestError() error {
 	return errors.New("Error parsing user request ")
 }
 
-func NewUserNotFoundError() error {
-	return errors.New("Error retrieving user from db ")
+func NewProtoRequestError() error {
+	return status.Error(codes.FailedPrecondition, "Proto request malformed")
+}
+
+func NewProtoResponseError() error {
+	return status.Error(codes.Internal, "Proto response internal error ")
 }
 
 func Error() error {

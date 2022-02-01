@@ -6,3 +6,7 @@ type createUserResponse struct {
 	User    entities.User
 	Message entities.Message
 }
+
+type getUserResponse struct {
+	User entities.User
+}

@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestCreateUserEndpoint(t *testing.T) {
+func TestCreateUser(t *testing.T) {
 	httpRepoMock := new(RepositoryMock)
 	logger := log.NewLogfmtLogger(os.Stderr)
 	testCases := []struct {
@@ -37,6 +37,37 @@ func TestCreateUserEndpoint(t *testing.T) {
 			httpSrv := NewHttpService(httpRepoMock, logger)
 			usr, err := httpSrv.CreateUser(ctx, inputUser)
 			assert.Equal(tc.expectedOutput, usr.Id, "User creation fail ")
+			assert.Equal(tc.expectedError, err, "User creation error:  ", err)
+		})
+	}
+}
+
+func TestGetUser(t *testing.T) {
+	httpRepoMock := new(RepositoryMock)
+	logger := log.NewLogfmtLogger(os.Stderr)
+	testCases := []struct {
+		testName       string
+		input          int32
+		expectedOutput entities.User
+		expectedError  error
+	}{
+		{
+			testName:       "validate user creation on user all fields  ",
+			input:          1,
+			expectedOutput: entities.User{Id: 1, Name: "Juan"},
+			expectedError:  nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			ctx := context.Background()
+			assert := assert.New(t)
+			inputId := tc.input
+			httpRepoMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
+			httpSrv := NewHttpService(httpRepoMock, logger)
+			usr, err := httpSrv.GetUser(ctx, inputId)
+			assert.Equal(tc.expectedOutput, usr, "User creation fail ")
 			assert.Equal(tc.expectedError, err, "User creation error:  ", err)
 		})
 	}

@@ -16,7 +16,7 @@ func makeDecodeGRPCCreateUserRequest(logger log.Logger) kitGRPC.DecodeRequestFun
 		pbReq, ok := req.(*pb.CreateUserRequest)
 		if !ok {
 			level.Error(logger).Log("Create user request pb not matched")
-			return nil, errors.NewParsingRequestError()
+			return nil, errors.NewProtoRequestError()
 		}
 		return createUserRequest{User: entities.User{
 			Id:                     pbReq.User.Id,
@@ -34,7 +34,7 @@ func makeEncodeGRPCCReateUserResponse(logger log.Logger) kitGRPC.EncodeResponseF
 		res, ok := resp.(createUserResponse)
 		if !ok {
 			level.Error(logger).Log("Create user response  pb not matched")
-			return nil, errors.NewParsingRequestError()
+			return nil, errors.NewProtoResponseError()
 		}
 		return &pb.CreateUserResponse{User: &pb.User{Id: res.User.Id, PwdHash: res.User.Pwd_hash, Name: res.User.Name, Age: res.User.Age, Parent: res.User.Parent, AdditionalInformation: res.User.Additional_information}, Message: &pb.MessageResponse{Code: res.Message.Code, Message: res.Message.Message}}, nil
 	}
@@ -45,7 +45,7 @@ func makeDecodeGRPCGetUserRequest(logger log.Logger) kitGRPC.DecodeRequestFunc {
 		pbReq, ok := req.(*pb.GetUserRequest)
 		if !ok {
 			level.Error(logger).Log("Get user request pb not matched")
-			return nil, errors.NewParsingRequestError()
+			return nil, errors.NewProtoRequestError()
 		}
 		return getUserRequest{pbReq.Id}, nil
 	}
@@ -56,7 +56,7 @@ func makeEncodeGRPCGetUserResponse(logger log.Logger) kitGRPC.EncodeResponseFunc
 		res, ok := resp.(getUserResponse)
 		if !ok {
 			level.Error(logger).Log("Get user response  pb not matched")
-			return nil, errors.NewParsingRequestError()
+			return nil, errors.NewProtoResponseError()
 		}
 		return &pb.GetUserResponse{User: &pb.User{Id: res.User.Id, PwdHash: res.User.Pwd_hash, Name: res.User.Name, Age: res.User.Age, AdditionalInformation: res.User.Additional_information}, Message: &pb.MessageResponse{Code: res.Message.Code, Message: res.Message.Message}}, nil
 	}
