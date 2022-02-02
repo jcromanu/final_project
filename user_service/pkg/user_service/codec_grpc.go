@@ -61,3 +61,25 @@ func makeEncodeGRPCGetUserResponse(logger log.Logger) kitGRPC.EncodeResponseFunc
 		return &pb.GetUserResponse{User: &pb.User{Id: res.User.Id, PwdHash: res.User.Pwd_hash, Name: res.User.Name, Age: res.User.Age, AdditionalInformation: res.User.Additional_information}, Message: &pb.MessageResponse{Code: res.Message.Code, Message: res.Message.Message}}, nil
 	}
 }
+
+func makeDecodeGRPCUpdateUserRequest(logger log.Logger) kitGRPC.DecodeRequestFunc {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		pbReq, ok := req.(*pb.UpdateUserRequest)
+		if !ok {
+			level.Error(logger).Log("Update user request pb not matched")
+			return nil, errors.NewProtoRequestError()
+		}
+		return updateUserRequest{entities.User{Id: pbReq.User.Id, Pwd_hash: pbReq.User.PwdHash, Name: pbReq.User.Name, Age: pbReq.User.Age, Additional_information: pbReq.User.AdditionalInformation, Parent: pbReq.User.Parent}}, nil
+	}
+}
+
+func makeEncodeGRPCUpdateUserResponse(logger log.Logger) kitGRPC.EncodeResponseFunc {
+	return func(ctx context.Context, resp interface{}) (request interface{}, err error) {
+		res, ok := resp.(updateUserResponse)
+		if !ok {
+			level.Error(logger).Log("Get user response  pb not matched")
+			return nil, errors.NewProtoResponseError()
+		}
+		return &pb.UpdateUserResponse{Message: &pb.MessageResponse{Code: res.Message.Code, Message: res.Message.Message}}, nil
+	}
+}

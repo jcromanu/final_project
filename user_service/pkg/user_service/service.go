@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/jcromanu/final_project/user_service/errors"
 	"github.com/jcromanu/final_project/user_service/pkg/entities"
 )
 
@@ -19,6 +20,7 @@ type UserService struct {
 type Repository interface {
 	CreateUser(context.Context, entities.User) (int32, error)
 	GetUser(context.Context, int32) (entities.User, error)
+	UpdateUser(context.Context, entities.User) error
 }
 
 func NewService(repo Repository, logger log.Logger) *UserService {
@@ -39,10 +41,27 @@ func (srv *UserService) CreateUser(ctx context.Context, user entities.User) (ent
 }
 
 func (srv *UserService) GetUser(ctx context.Context, id int32) (entities.User, error) {
+	if id == 0 {
+		level.Error(srv.logger).Log("Empty user id ")
+		return entities.User{}, errors.NewBadRequestError()
+	}
 	usr, err := srv.repo.GetUser(ctx, id)
 	if err != nil {
 		level.Error(srv.logger).Log("Error retrieving  user in database:", err)
 		return entities.User{}, err
 	}
 	return usr, err
+}
+
+func (srv *UserService) UpdateUser(ctx context.Context, usr entities.User) error {
+	if usr.Id == 0 {
+		level.Error(srv.logger).Log("Empty user id ")
+		return errors.NewBadRequestError()
+	}
+	err := srv.repo.UpdateUser(ctx, usr)
+	if err != nil {
+		level.Error(srv.logger).Log("Error updating user in database:", err)
+		return err
+	}
+	return nil
 }

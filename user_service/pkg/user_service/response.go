@@ -11,3 +11,7 @@ type getUserResponse struct {
 	User    entities.User
 	Message entities.Message
 }
+
+type updateUserResponse struct {
+	Message entities.Message
+}
