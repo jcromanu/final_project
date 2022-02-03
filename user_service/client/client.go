@@ -35,4 +35,13 @@ func main() {
 		log.Fatal("Error on simple rpc ", err)
 	}
 	fmt.Print("User id:", getRes.User.Name)
+
+	fmt.Println("Starting update user")
+	updateUserReq := &pb.UpdateUserRequest{User: &pb.User{Id: 5, Name: "Pedro", Age: 30, PwdHash: "hash ", AdditionalInformation: "additional info", Parent: []string{"parent sample"}}}
+	updateRes, err := client.UpdateUser(context.Background(), updateUserReq)
+	if err != nil {
+		log.Fatal("Error on simple rpc ", err)
+	}
+	fmt.Println("Updated: " + updateRes.Message.Message)
+
 }

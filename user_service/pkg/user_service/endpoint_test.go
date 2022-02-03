@@ -85,3 +85,40 @@ func TestMakeGetUserEndpoint(t *testing.T) {
 		})
 	}
 }
+
+func TestMakeUpdateUserEndpoint(t *testing.T) {
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	serviceMock := new(ServiceMock)
+	testCases := []struct {
+		testName       string
+		input          updateUserRequest
+		expectedOutput error
+		expectedError  error
+	}{
+		{
+			testName:       "update endpoint user with all fields success ",
+			input:          updateUserRequest{entities.User{Id: 1, Name: "Juan", Age: 30, Pwd_hash: "hash ", Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			expectedOutput: nil,
+			expectedError:  nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			serviceMock.On("UpdateUser", mock.Anything, mock.Anything).Return(tc.expectedError)
+			ep := makeUpdatesUserEndpoint(serviceMock, logger)
+			result, err := ep(ctx, tc.input)
+			if err != nil {
+				t.Errorf("Error creating user endpoint")
+				return
+			}
+			_, ok := result.(updateUserResponse)
+			if !ok {
+				t.Errorf("Error parsing user response on test")
+				return
+			}
+
+			assert.Equal(t, tc.expectedError, err, "Error on user response")
+		})
+	}
+}

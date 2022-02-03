@@ -67,3 +67,28 @@ func TestServiceGetUser(t *testing.T) {
 		})
 	}
 }
+
+func TestServiceUpdateUser(t *testing.T) {
+	repoMock := new(RepositoryMock)
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	testCases := []struct {
+		testName      string
+		input         entities.User
+		expectedError error
+	}{
+		{
+			testName:      "update user valid id",
+			input:         entities.User{Id: 1, Name: "Juan", Age: 30, Pwd_hash: "hash ", Additional_information: "additional info", Parent: []string{"parent sample"}},
+			expectedError: nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			repoMock.On("UpdateUser", mock.Anything, mock.Anything).Return(tc.expectedError)
+			service := NewService(repoMock, logger)
+			err := service.UpdateUser(ctx, tc.input)
+			assert.Equal(t, tc.expectedError, err)
+		})
+	}
+}

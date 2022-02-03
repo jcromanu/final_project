@@ -14,7 +14,8 @@ import (
 const (
 	create_user_sql = `INSERT INTO USER(username,age,pwd_hash,additional_information,parent) 
 	VALUES(?,?,?,?,?)`
-	get_user_sql = `SELECT u.username , u.pwd_hash , u.additional_information , u.age  FROM USER u  WHERE u.id = ? `
+	get_user_sql    = `SELECT u.username , u.pwd_hash , u.additional_information , u.age  FROM USER u  WHERE u.id = ? `
+	update_user_sql = "UPDATE USER set username = ? , age = ? , pwd_hash = ? , additional_information = ? , parent = ? where id = ?  "
 )
 
 type userRepository struct {
@@ -53,4 +54,19 @@ func (r *userRepository) GetUser(ctx context.Context, id int32) (entities.User, 
 	}
 	usr.Id = id
 	return usr, nil
+}
+
+func (r *userRepository) UpdateUser(ctx context.Context, usr entities.User) error {
+
+	if err := r.db.QueryRow(get_user_sql, usr.Id).Scan(); err == sql.ErrNoRows {
+		level.Error(r.log).Log("Error retrieving user ")
+		return errors.NewUserNotFoundError()
+	}
+
+	_, err := r.db.ExecContext(ctx, update_user_sql, usr.Name, usr.Age, usr.Pwd_hash, usr.Additional_information, strings.Join(usr.Parent, ","), usr.Id)
+	if err != nil {
+		level.Error(r.log).Log("Error updating user " + err.Error())
+		return errors.NewInternalError()
+	}
+	return nil
 }

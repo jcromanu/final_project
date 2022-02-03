@@ -48,3 +48,13 @@ func (r *repository) GetUser(ctx context.Context, id int32) (entities.User, erro
 	}
 	return usr, nil
 }
+
+func (r *repository) UpdateUser(ctx context.Context, usr entities.User) (string, error) {
+	usrReq := &pb.UpdateUserRequest{User: &pb.User{Id: usr.Id, PwdHash: usr.Pwd_hash, Name: usr.Name, Age: usr.Age, AdditionalInformation: usr.Additional_information, Parent: usr.Parent}}
+	resp, err := r.client.UpdateUser(ctx, usrReq)
+	if err != nil {
+		level.Error(r.log).Log("Client error updating user ", err)
+		return "", err
+	}
+	return resp.Message.Message, nil
+}

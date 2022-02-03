@@ -23,3 +23,8 @@ func (m *ServiceMock) GetUser(ctx context.Context, id int32) (entities.User, err
 	usr := entities.User{Id: parsedID}
 	return usr, args.Error(1)
 }
+
+func (m *ServiceMock) UpdateUser(ctx context.Context, usr entities.User) error {
+	args := m.Called(ctx, usr)
+	return args.Error(0)
+}

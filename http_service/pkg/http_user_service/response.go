@@ -10,3 +10,7 @@ type createUserResponse struct {
 type getUserResponse struct {
 	User entities.User
 }
+
+type updateUserResponse struct {
+	Status string
+}

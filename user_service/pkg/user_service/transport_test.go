@@ -8,7 +8,6 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/transport/grpc"
 	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/jcromanu/final_project/user_service/pb"
 	"github.com/jcromanu/final_project/user_service/pkg/entities"
 
@@ -30,7 +29,7 @@ func TestTransportCreateUser(t *testing.T) {
 		expectedError  error
 	}{
 		{
-			testName:       "test serve endpoint user with all fields success  ",
+			testName:       "test create user server  user with all fields success  ",
 			input:          createUserRequest{User: entities.User{Name: "Juan", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}}},
 			expectedOutput: 1,
 			expectedError:  nil,
@@ -38,7 +37,6 @@ func TestTransportCreateUser(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
-			level.Info(logger).Log("Iniciando Transport test suite ")
 			srvMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
 			endpoints := MakeEndpoints(srvMock, logger, middlewares)
 			grpcServer := NewGRPCServer(endpoints, opts, logger)
@@ -66,7 +64,7 @@ func TestTransportGetUser(t *testing.T) {
 		expectedError  error
 	}{
 		{
-			testName:       "test serve endpoint user with all fields success  ",
+			testName:       "test get user  server  user with all fields success  ",
 			input:          getUserRequest{Id: 1},
 			expectedOutput: entities.User{Id: 1},
 			expectedError:  nil,
@@ -74,7 +72,6 @@ func TestTransportGetUser(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
-			level.Info(logger).Log("Iniciando Transport test suite ")
 			srvMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.input.Id, tc.expectedError)
 			endpoints := MakeEndpoints(srvMock, logger, middlewares)
 			grpcServer := NewGRPCServer(endpoints, opts, logger)
@@ -84,6 +81,41 @@ func TestTransportGetUser(t *testing.T) {
 				return
 			}
 			assert.Equal(t, tc.expectedOutput.Id, res.User.Id, "User not retrieved")
+		})
+	}
+}
+
+func TestTransportUpdateUser(t *testing.T) {
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	middlewares := []endpoint.Middleware{}
+	opts := []grpc.ServerOption{}
+	srvMock := new(ServiceMock)
+
+	testCases := []struct {
+		testName       string
+		input          *pb.UpdateUserRequest
+		expectedOutput entities.User
+		expectedError  error
+	}{
+		{
+			testName:       "test update user server  user with all fields success  ",
+			input:          &pb.UpdateUserRequest{User: &pb.User{Id: 1, Name: "Juan", Age: 30, PwdHash: "hash ", AdditionalInformation: "additional info", Parent: []string{"parent sample"}}},
+			expectedOutput: entities.User{Id: 1},
+			expectedError:  nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			srvMock.On("UpdateUser", mock.Anything, mock.Anything).Return(tc.expectedError)
+			endpoints := MakeEndpoints(srvMock, logger, middlewares)
+			grpcServer := NewGRPCServer(endpoints, opts, logger)
+			_, err := grpcServer.UpdateUser(ctx, tc.input)
+			if err != nil {
+				t.Errorf(err.Error())
+				return
+			}
+			assert.Equal(t, err, tc.expectedError, "User not retrieved")
 		})
 	}
 }

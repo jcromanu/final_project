@@ -14,11 +14,13 @@ import (
 type Endpoints struct {
 	CreateUser endpoint.Endpoint
 	GetUser    endpoint.Endpoint
+	UpdateUser endpoint.Endpoint
 }
 
 type Service interface {
 	CreateUser(ctx context.Context, user entities.User) (entities.User, error)
 	GetUser(ctx context.Context, id int32) (entities.User, error)
+	UpdateUser(ctx context.Context, user entities.User) error
 }
 
 func MakeEndpoints(srv Service, logger log.Logger, middlewares []endpoint.Middleware) Endpoints {
@@ -26,6 +28,7 @@ func MakeEndpoints(srv Service, logger log.Logger, middlewares []endpoint.Middle
 		//CreateUser: wrapEndpoints(makeCreateUserEndpoint(srv, logger), middlewares)
 		CreateUser: makeCreateUserEndpoint(srv, logger),
 		GetUser:    makeGetUserEndpoint(srv, logger),
+		UpdateUser: makeUpdatesUserEndpoint(srv, logger),
 	}
 }
 
@@ -60,6 +63,23 @@ func makeGetUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 			return nil, err
 		}
 		return getUserResponse{User: usr, Message: entities.Message{Message: "User retrieved", Code: 0}}, nil
+	}
+}
+
+func makeUpdatesUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req, ok := request.(updateUserRequest)
+		if !ok {
+			level.Error(logger).Log("Bad request on endpoint creation  expected getUserRequest got :")
+			level.Error(logger).Log(reflect.TypeOf(request))
+			return nil, errors.NewBadRequestError()
+		}
+		err := srv.UpdateUser(ctx, req.User)
+		if err != nil {
+			level.Error(logger).Log(err)
+			return nil, err
+		}
+		return updateUserResponse{entities.Message{Message: "user updated", Code: 0}}, nil
 	}
 }
 
