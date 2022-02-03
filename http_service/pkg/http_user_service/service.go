@@ -20,6 +20,7 @@ type HttpService struct {
 type Repository interface {
 	CreateUser(context.Context, entities.User) (int32, error)
 	GetUser(context.Context, int32) (entities.User, error)
+	UpdateUser(context.Context, entities.User) (string, error)
 }
 
 func NewHttpService(repo Repository, logger log.Logger) *HttpService {
@@ -53,4 +54,16 @@ func (srv *HttpService) GetUser(ctx context.Context, id int32) (entities.User, e
 		return entities.User{}, err
 	}
 	return usr, nil
+}
+
+func (srv *HttpService) UpdateUser(ctx context.Context, usr entities.User) (string, error) {
+	if usr.Id <= 0 {
+		return "", errors.NewEmptyFieldError()
+	}
+	res, err := srv.repo.UpdateUser(ctx, usr)
+	if err != nil {
+		level.Error(srv.log).Log("Error updating user from update service: ", err)
+		return "", err
+	}
+	return res, nil
 }

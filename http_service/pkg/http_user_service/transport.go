@@ -28,7 +28,13 @@ func NewHTTPServer(e Endpoints, logger log.Logger) http.Handler {
 	))
 	r.Methods("GET").Path("/users/{id}").Handler(httptransport.NewServer(
 		e.GetUser,
-		decodeGetCreateUserRequest,
+		decodeGetUserRequest,
+		encodeResponse,
+		opt...,
+	))
+	r.Methods("PUT").Path("/users/{id}").Handler(httptransport.NewServer(
+		e.UpdateUser,
+		decodePutUpdateUserRequest,
 		encodeResponse,
 		opt...,
 	))

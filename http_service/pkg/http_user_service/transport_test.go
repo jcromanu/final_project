@@ -27,7 +27,7 @@ func TestCreateUserTransport(t *testing.T) {
 		expectedStatus int
 	}{
 		{
-			testName: "transport empty user creation",
+			testName: "transport user creation",
 			input: `{"User":{"pwd_hash":"oooo",
 					"name": "Juan ",
 					"age": 30 ,
@@ -66,7 +66,7 @@ func TestGetUserTransport(t *testing.T) {
 		expectedStatus int
 	}{
 		{
-			testName:       "transport empty user creation",
+			testName:       "transport user retrieval ",
 			input:          1,
 			expectedOutput: 1,
 			expectedError:  nil,
@@ -82,6 +82,48 @@ func TestGetUserTransport(t *testing.T) {
 			httpServer := NewHTTPServer(endpoints, logger)
 			server := httptest.NewServer(httpServer)
 			res, _ := http.Get(server.URL + "/users/" + fmt.Sprintf("%v", tc.expectedOutput))
+			defer server.Close()
+			assert.Equal(tc.expectedStatus, res.StatusCode)
+		})
+	}
+}
+
+func TestUpdateUserTransport(t *testing.T) {
+	serviceMock := new(ServiceMock)
+	logger := log.NewLogfmtLogger(os.Stderr)
+	middlewares := []endpoint.Middleware{}
+	testCases := []struct {
+		testName       string
+		input          string
+		id             int32
+		expectedOutput int32
+		expectedError  error
+		expectedStatus int
+	}{
+		{
+			testName: "transport  user updated ",
+			id:       1,
+			input: `{"User":{"pwd_hash":"oooo",
+			"name": "Juan ",
+			"age": 30 ,
+			"additional_information": "no info ", 
+			"parent": ["testparent"]
+			}}`,
+			expectedOutput: 1,
+			expectedError:  nil,
+			expectedStatus: 200,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			assert := assert.New(t)
+			serviceMock.On("UpdateUser", mock.Anything, mock.Anything).Return("", tc.expectedError)
+			endpoints := MakeEndpoints(serviceMock, logger, middlewares)
+			httpServer := NewHTTPServer(endpoints, logger)
+			server := httptest.NewServer(httpServer)
+			req, _ := http.NewRequest("PUT", server.URL+"/users/"+fmt.Sprintf("%v", tc.id), strings.NewReader(tc.input))
+			res, _ := http.DefaultClient.Do(req)
 			defer server.Close()
 			assert.Equal(tc.expectedStatus, res.StatusCode)
 		})

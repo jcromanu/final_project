@@ -9,3 +9,7 @@ type createUserRequest struct {
 type getUserRequest struct {
 	Id int32
 }
+
+type updateUserRequest struct {
+	User entities.User
+}

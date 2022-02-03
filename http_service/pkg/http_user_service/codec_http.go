@@ -27,7 +27,7 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 	return json.NewEncoder(w).Encode(response)
 }
 
-func decodeGetCreateUserRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+func decodeGetUserRequest(ctx context.Context, r *http.Request) (request interface{}, err error) {
 	idParam := mux.Vars(r)["id"]
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -35,6 +35,20 @@ func decodeGetCreateUserRequest(_ context.Context, r *http.Request) (request int
 	}
 	request = getUserRequest{Id: int32(id)}
 	return request, nil
+}
+
+func decodePutUpdateUserRequest(ctx context.Context, r *http.Request) (request interface{}, err error) {
+	var req updateUserRequest
+	idParam := mux.Vars(r)["id"]
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		return nil, err
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+	req.User.Id = int32(id)
+	return req, nil
 }
 
 type errorer interface {
