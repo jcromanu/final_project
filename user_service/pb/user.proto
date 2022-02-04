@@ -8,6 +8,7 @@ service UserService {
     rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
     rpc GetUser(GetUserRequest) returns (GetUserResponse);
     rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
 }
 
 message User {
@@ -48,5 +49,12 @@ message UpdateUserResponse {
 message MessageResponse {
        int32 code = 1; 
        string message = 2;
-   }
-   
+}
+
+message DeleteUserRequest {
+    int32 id = 1;
+}
+
+message DeleteUserResponse {
+    MessageResponse message = 1;
+}

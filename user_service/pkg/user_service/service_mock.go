@@ -28,3 +28,8 @@ func (m *ServiceMock) UpdateUser(ctx context.Context, usr entities.User) error {
 	args := m.Called(ctx, usr)
 	return args.Error(0)
 }
+
+func (m *ServiceMock) DeleteUser(ctx context.Context, id int32) error {
+	args := m.Called(ctx, id)
+	return args.Error(0)
+}

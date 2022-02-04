@@ -119,3 +119,36 @@ func TestTransportUpdateUser(t *testing.T) {
 		})
 	}
 }
+
+func TestTransportDeleteUser(t *testing.T) {
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	middlewares := []endpoint.Middleware{}
+	opts := []grpc.ServerOption{}
+	srvMock := new(ServiceMock)
+
+	testCases := []struct {
+		testName      string
+		input         *pb.DeleteUserRequest
+		expectedError error
+	}{
+		{
+			testName:      "test update user server  user with all fields success  ",
+			input:         &pb.DeleteUserRequest{Id: 1},
+			expectedError: nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			srvMock.On("DeleteUser", mock.Anything, mock.Anything).Return(tc.expectedError)
+			endpoints := MakeEndpoints(srvMock, logger, middlewares)
+			grpcServer := NewGRPCServer(endpoints, opts, logger)
+			_, err := grpcServer.DeleteUser(ctx, tc.input)
+			if err != nil {
+				t.Errorf(err.Error())
+				return
+			}
+			assert.Equal(t, err, tc.expectedError, "User not retrieved")
+		})
+	}
+}

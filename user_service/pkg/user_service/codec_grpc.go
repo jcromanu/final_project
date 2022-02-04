@@ -83,3 +83,25 @@ func makeEncodeGRPCUpdateUserResponse(logger log.Logger) kitGRPC.EncodeResponseF
 		return &pb.UpdateUserResponse{Message: &pb.MessageResponse{Code: res.Message.Code, Message: res.Message.Message}}, nil
 	}
 }
+
+func makeDecodeDeleteUserRequest(logger log.Logger) kitGRPC.DecodeRequestFunc {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		res, ok := req.(*pb.DeleteUserRequest)
+		if !ok {
+			level.Error(logger).Log("Get user response  pb not matched")
+			return nil, errors.NewProtoResponseError()
+		}
+		return deleteUserRequest{id: res.Id}, nil
+	}
+}
+
+func makeEncodeDeleteUserResponse(logger log.Logger) kitGRPC.EncodeResponseFunc {
+	return func(ctx context.Context, resp interface{}) (request interface{}, err error) {
+		res, ok := resp.(deleteUserResponse)
+		if !ok {
+			level.Error(logger).Log("Get user response  pb not matched")
+			return nil, errors.NewProtoResponseError()
+		}
+		return &pb.DeleteUserResponse{Message: &pb.MessageResponse{Message: res.Message.Message, Code: 0}}, nil
+	}
+}

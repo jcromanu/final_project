@@ -15,3 +15,7 @@ type getUserResponse struct {
 type updateUserResponse struct {
 	Message entities.Message
 }
+
+type deleteUserResponse struct {
+	Message entities.Message
+}

@@ -44,4 +44,11 @@ func main() {
 	}
 	fmt.Println("Updated: " + updateRes.Message.Message)
 
+	fmt.Println("Starting delete user")
+	deleteUserReq := &pb.DeleteUserRequest{Id: 30}
+	deleteRes, err := client.DeleteUser(context.Background(), deleteUserReq)
+	if err != nil {
+		log.Fatal("Error on simple rpc ", err)
+	}
+	fmt.Println("Deleted id : " + deleteRes.Message.Message)
 }

@@ -21,6 +21,7 @@ type Repository interface {
 	CreateUser(context.Context, entities.User) (int32, error)
 	GetUser(context.Context, int32) (entities.User, error)
 	UpdateUser(context.Context, entities.User) error
+	DeleteUser(context.Context, int32) error
 }
 
 func NewService(repo Repository, logger log.Logger) *UserService {
@@ -41,7 +42,7 @@ func (srv *UserService) CreateUser(ctx context.Context, user entities.User) (ent
 }
 
 func (srv *UserService) GetUser(ctx context.Context, id int32) (entities.User, error) {
-	if id == 0 {
+	if id <= 0 {
 		level.Error(srv.logger).Log("Empty user id ")
 		return entities.User{}, errors.NewBadRequestError()
 	}
@@ -54,13 +55,26 @@ func (srv *UserService) GetUser(ctx context.Context, id int32) (entities.User, e
 }
 
 func (srv *UserService) UpdateUser(ctx context.Context, usr entities.User) error {
-	if usr.Id == 0 {
+	if usr.Id <= 0 {
 		level.Error(srv.logger).Log("Empty user id ")
 		return errors.NewBadRequestError()
 	}
 	err := srv.repo.UpdateUser(ctx, usr)
 	if err != nil {
 		level.Error(srv.logger).Log("Error updating user in database:", err)
+		return err
+	}
+	return nil
+}
+
+func (srv *UserService) DeleteUser(ctx context.Context, id int32) error {
+	if id <= 0 {
+		level.Error(srv.logger).Log("Empty user id ")
+		return errors.NewBadRequestError()
+	}
+	err := srv.repo.DeleteUser(ctx, id)
+	if err != nil {
+		level.Error(srv.logger).Log("Error deleting user in database:", err)
 		return err
 	}
 	return nil

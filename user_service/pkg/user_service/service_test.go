@@ -92,3 +92,28 @@ func TestServiceUpdateUser(t *testing.T) {
 		})
 	}
 }
+
+func TestServiceDeleteUser(t *testing.T) {
+	repoMock := new(RepositoryMock)
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	testCases := []struct {
+		testName      string
+		input         int32
+		expectedError error
+	}{
+		{
+			testName:      "hard delete user ",
+			input:         1,
+			expectedError: nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			repoMock.On("DeleteUser", mock.Anything, mock.Anything).Return(tc.expectedError)
+			service := NewService(repoMock, logger)
+			err := service.DeleteUser(ctx, tc.input)
+			assert.Equal(t, tc.expectedError, err)
+		})
+	}
+}
