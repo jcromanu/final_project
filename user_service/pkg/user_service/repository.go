@@ -14,7 +14,7 @@ import (
 const (
 	create_user_sql = `INSERT INTO USER(username,age,pwd_hash,additional_information,parent) 
 	VALUES(?,?,?,?,?)`
-	get_user_sql    = `SELECT u.username , u.pwd_hash , u.additional_information , u.age  FROM USER u  WHERE u.id = ? `
+	get_user_sql    = `SELECT u.username , u.pwd_hash , u.additional_information , u.age , u.parent FROM USER u  WHERE u.id = ? `
 	update_user_sql = "UPDATE USER set username = ? , age = ? , pwd_hash = ? , additional_information = ? , parent = ? where id = ?  "
 	delete_user_sql = `DELETE FROM USER WHERE id = ? `
 )
@@ -43,8 +43,9 @@ func (r *userRepository) CreateUser(ctx context.Context, usr entities.User) (int
 }
 
 func (r *userRepository) GetUser(ctx context.Context, id int32) (entities.User, error) {
+	var parent *string
 	usr := entities.User{}
-	err := r.db.QueryRow(get_user_sql, id).Scan(&usr.Name, &usr.Pwd_hash, &usr.Additional_information, &usr.Age)
+	err := r.db.QueryRow(get_user_sql, id).Scan(&usr.Name, &usr.Pwd_hash, &usr.Additional_information, &usr.Age, &parent)
 	if err == sql.ErrNoRows {
 		level.Error(r.log).Log("Error retrieving user" + err.Error())
 		return entities.User{}, errors.NewUserNotFoundError()
@@ -54,6 +55,7 @@ func (r *userRepository) GetUser(ctx context.Context, id int32) (entities.User, 
 		return entities.User{}, errors.NewInternalError()
 	}
 	usr.Id = id
+	usr.Parent = strings.Split(*parent, ",")
 	return usr, nil
 }
 
