@@ -2,10 +2,10 @@ package entities
 
 type User struct {
 	Id                     int32
-	Pwd_hash               string
-	Name                   string
-	Age                    int32
-	Additional_information string
+	Pwd_hash               string `validate:"required"`
+	Name                   string `validate:"required"`
+	Age                    int32  `validate:"required"`
+	Additional_information string `validate:"required"`
 	Parent                 []string
 }
 

@@ -41,12 +41,12 @@ func makeCreateUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 		if !ok {
 			level.Error(logger).Log("Bad request on endpoint creation  expected createUserRequest got :")
 			level.Error(logger).Log(reflect.TypeOf(request))
-			return nil, errors.NewBadRequestError()
+			return createUserResponse{}, errors.NewBadRequestError()
 		}
 		usr, err := srv.CreateUser(ctx, req.User)
 		if err != nil {
 			level.Error(logger).Log(err)
-			return nil, err
+			return createUserResponse{}, err
 		}
 		return createUserResponse{User: usr, Message: entities.Message{Message: "User created", Code: 0}}, nil
 	}
