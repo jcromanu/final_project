@@ -21,6 +21,7 @@ type Repository interface {
 	CreateUser(context.Context, entities.User) (int32, error)
 	GetUser(context.Context, int32) (entities.User, error)
 	UpdateUser(context.Context, entities.User) (string, error)
+	DeleteUser(context.Context, int32) (string, error)
 }
 
 func NewHttpService(repo Repository, logger log.Logger) *HttpService {
@@ -33,11 +34,12 @@ func NewHttpService(repo Repository, logger log.Logger) *HttpService {
 
 func (srv *HttpService) CreateUser(ctx context.Context, usr entities.User) (entities.User, error) {
 	if err := srv.validator.Struct(usr); err != nil {
+		level.Error(srv.log).Log("Bad request  : ", err)
 		return entities.User{}, errors.NewEmptyFieldError()
 	}
 	id, err := srv.repo.CreateUser(ctx, usr)
 	if err != nil {
-		level.Error(srv.log).Log("Error creating user from grpc service  :", err)
+		level.Error(srv.log).Log("Error creating user :", err)
 		return entities.User{}, err
 	}
 	usr.Id = id
@@ -46,11 +48,12 @@ func (srv *HttpService) CreateUser(ctx context.Context, usr entities.User) (enti
 
 func (srv *HttpService) GetUser(ctx context.Context, id int32) (entities.User, error) {
 	if id <= 0 {
+		level.Error(srv.log).Log("Bad id request")
 		return entities.User{}, errors.NewEmptyFieldError()
 	}
 	usr, err := srv.repo.GetUser(ctx, id)
 	if err != nil {
-		level.Error(srv.log).Log("Error getting user from grpc service  :", err)
+		level.Error(srv.log).Log("Error getting user :", err)
 		return entities.User{}, err
 	}
 	return usr, nil
@@ -58,11 +61,30 @@ func (srv *HttpService) GetUser(ctx context.Context, id int32) (entities.User, e
 
 func (srv *HttpService) UpdateUser(ctx context.Context, usr entities.User) (string, error) {
 	if usr.Id <= 0 {
+		level.Error(srv.log).Log("Bad id request")
 		return "", errors.NewEmptyFieldError()
 	}
+	if err := srv.validator.Struct(usr); err != nil {
+		level.Error(srv.log).Log("Bad request  : ", err)
+		return "", errors.NewEmptyFieldError()
+	}
+
 	res, err := srv.repo.UpdateUser(ctx, usr)
 	if err != nil {
-		level.Error(srv.log).Log("Error updating user from update service: ", err)
+		level.Error(srv.log).Log("Error updating user : ", err)
+		return "", err
+	}
+	return res, nil
+}
+
+func (srv *HttpService) DeleteUser(ctx context.Context, id int32) (string, error) {
+	if id <= 0 {
+		level.Error(srv.log).Log("Bad id request")
+		return "", errors.NewEmptyFieldError()
+	}
+	res, err := srv.repo.DeleteUser(ctx, id)
+	if err != nil {
+		level.Error(srv.log).Log("Error deleting user : ", err)
 		return "", err
 	}
 	return res, nil

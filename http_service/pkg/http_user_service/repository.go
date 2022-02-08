@@ -43,7 +43,7 @@ func (r *repository) GetUser(ctx context.Context, id int32) (entities.User, erro
 		Id:                     userResponse.User.Id,
 		Age:                    userResponse.User.Age,
 		Additional_information: userResponse.User.AdditionalInformation,
-		Pwd_hash:               userResponse.User.AdditionalInformation,
+		Pwd_hash:               userResponse.User.PwdHash,
 		Name:                   userResponse.User.Name,
 	}
 	return usr, nil
@@ -54,6 +54,16 @@ func (r *repository) UpdateUser(ctx context.Context, usr entities.User) (string,
 	resp, err := r.client.UpdateUser(ctx, usrReq)
 	if err != nil {
 		level.Error(r.log).Log("Client error updating user ", err)
+		return "", err
+	}
+	return resp.Message.Message, nil
+}
+
+func (r *repository) DeleteUser(ctx context.Context, id int32) (string, error) {
+	userReq := &pb.DeleteUserRequest{Id: id}
+	resp, err := r.client.DeleteUser(ctx, userReq)
+	if err != nil {
+		level.Error(r.log).Log("Client error deleting  user ", err)
 		return "", err
 	}
 	return resp.Message.Message, nil

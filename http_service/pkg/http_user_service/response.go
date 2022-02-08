@@ -14,3 +14,7 @@ type getUserResponse struct {
 type updateUserResponse struct {
 	Status string
 }
+
+type deleteUserResponse struct {
+	Status string
+}

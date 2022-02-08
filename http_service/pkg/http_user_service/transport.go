@@ -38,6 +38,12 @@ func NewHTTPServer(e Endpoints, logger log.Logger) http.Handler {
 		encodeResponse,
 		opt...,
 	))
+	r.Methods("DELETE").Path("/users/{id}").Handler(httptransport.NewServer(
+		e.DeleteUser,
+		decodeDeleteUserRequest,
+		encodeResponse,
+		opt...,
+	))
 	return r
 }
 

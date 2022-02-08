@@ -15,12 +15,14 @@ type Endpoints struct {
 	CreateUser endpoint.Endpoint
 	GetUser    endpoint.Endpoint
 	UpdateUser endpoint.Endpoint
+	DeleteUser endpoint.Endpoint
 }
 
 type Service interface {
 	CreateUser(context.Context, entities.User) (entities.User, error)
 	GetUser(context.Context, int32) (entities.User, error)
 	UpdateUser(context.Context, entities.User) (string, error)
+	DeleteUser(context.Context, int32) (string, error)
 }
 
 func MakeEndpoints(srv Service, logger log.Logger, middlewares []endpoint.Middleware) Endpoints {
@@ -28,6 +30,7 @@ func MakeEndpoints(srv Service, logger log.Logger, middlewares []endpoint.Middle
 		CreateUser: makeCreateUserEndpoint(srv, logger),
 		GetUser:    makeGetUserEndpoint(srv, logger),
 		UpdateUser: makeUpdateUserEndpoint(srv, logger),
+		DeleteUser: makeDeleteUserEndpoint(srv, logger),
 	}
 }
 
@@ -79,5 +82,22 @@ func makeUpdateUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 			return nil, err
 		}
 		return updateUserResponse{Status: res}, nil
+	}
+}
+
+func makeDeleteUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req, ok := request.(deleteUserRequest)
+		if !ok {
+			level.Error(logger).Log("Bad request on endpoint creation  expected deleteUserRequest got :")
+			level.Error(logger).Log(reflect.TypeOf(request))
+			return nil, errors.NewBadRequestError()
+		}
+		res, err := srv.DeleteUser(ctx, req.Id)
+		if err != nil {
+			level.Error(logger).Log(err)
+			return nil, err
+		}
+		return deleteUserResponse{Status: res}, nil
 	}
 }
