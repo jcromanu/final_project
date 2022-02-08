@@ -51,6 +51,16 @@ func decodePutUpdateUserRequest(ctx context.Context, r *http.Request) (request i
 	return req, nil
 }
 
+func decodeDeleteUserRequest(ctx context.Context, r *http.Request) (request interface{}, err error) {
+	idParam := mux.Vars(r)["id"]
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		return nil, err
+	}
+	request = deleteUserRequest{Id: int32(id)}
+	return request, nil
+}
+
 type errorer interface {
 	error() error
 }

@@ -27,3 +27,8 @@ func (m *RepositoryMock) UpdateUser(ctx context.Context, usr entities.User) erro
 	args := m.Called(ctx, usr)
 	return args.Error(0)
 }
+
+func (m *RepositoryMock) DeleteUser(ctx context.Context, id int32) error {
+	args := m.Called(ctx, id)
+	return args.Error(0)
+}

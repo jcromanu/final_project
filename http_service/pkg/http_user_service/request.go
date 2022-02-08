@@ -13,3 +13,7 @@ type getUserRequest struct {
 type updateUserRequest struct {
 	User entities.User
 }
+
+type deleteUserRequest struct {
+	Id int32
+}

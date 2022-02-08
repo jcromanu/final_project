@@ -117,8 +117,42 @@ func TestMakeUpdateUserEndpoint(t *testing.T) {
 				t.Errorf("Error parsing user response on test")
 				return
 			}
-
 			assert.Equal(t, tc.expectedError, err, "Error on user response")
 		})
 	}
+}
+
+func TestMakeDeleteUserEndpoint(t *testing.T) {
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	serviceMock := new(ServiceMock)
+	testCases := []struct {
+		testName      string
+		input         deleteUserRequest
+		expectedError error
+	}{
+		{
+			testName:      "delete user on request ",
+			input:         deleteUserRequest{id: 1},
+			expectedError: nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			serviceMock.On("DeleteUser", mock.Anything, mock.Anything).Return(tc.expectedError)
+			ep := makeDeleteUserEndpoint(serviceMock, logger)
+			res, err := ep(ctx, tc.input)
+			if err != nil {
+				t.Errorf("Error creating user endpoint")
+				return
+			}
+			_, ok := res.(deleteUserResponse)
+			if !ok {
+				t.Errorf("Error parsing user response on test")
+				return
+			}
+			assert.Equal(t, tc.expectedError, err, "Error on user response")
+		})
+	}
+
 }

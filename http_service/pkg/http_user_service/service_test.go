@@ -21,7 +21,7 @@ func TestCreateUser(t *testing.T) {
 		expectedError  error
 	}{
 		{
-			testName:       "validate user creation on user all fields  ",
+			testName:       "test create user all fields   ",
 			input:          entities.User{Name: "Juan", Pwd_hash: "ooo", Age: 31, Additional_information: "no info", Parent: []string{}},
 			expectedOutput: 1,
 			expectedError:  nil,
@@ -52,7 +52,7 @@ func TestGetUser(t *testing.T) {
 		expectedError  error
 	}{
 		{
-			testName:       "validate user retrieval on user all fields  ",
+			testName:       "test get user with id   ",
 			input:          1,
 			expectedOutput: entities.User{Id: 1, Name: "Juan"},
 			expectedError:  nil,
@@ -77,24 +77,52 @@ func TestUpdateUser(t *testing.T) {
 	httpRepoMock := new(RepositoryMock)
 	logger := log.NewLogfmtLogger(os.Stderr)
 	testCases := []struct {
-		testName      string
-		input         entities.User
-		expectedError error
+		testName        string
+		input           entities.User
+		expectedError   error
+		expectedMessage string
 	}{
 		{
-			testName:      "update user on user all fields  ",
-			input:         entities.User{Id: 1, Name: "Juan", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}},
-			expectedError: nil,
+			testName:        "test update user all fields   ",
+			input:           entities.User{Id: 1, Name: "Juan", Pwd_hash: "hash", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}},
+			expectedError:   nil,
+			expectedMessage: "user updated",
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
 			ctx := context.Background()
 			assert := assert.New(t)
-			httpRepoMock.On("UpdateUser", mock.Anything, mock.Anything).Return("", tc.expectedError)
+			httpRepoMock.On("UpdateUser", mock.Anything, mock.Anything).Return(tc.expectedMessage, tc.expectedError)
 			httpSrv := NewHttpService(httpRepoMock, logger)
 			_, err := httpSrv.UpdateUser(ctx, tc.input)
 			assert.Equal(tc.expectedError, err, "User retrieval fail ")
 		})
+	}
+}
+
+func DeleteUser(t *testing.T) {
+	httpRepoMock := new(RepositoryMock)
+	logger := log.NewLogfmtLogger(os.Stderr)
+	testCases := []struct {
+		testName        string
+		input           int32
+		expectedError   error
+		expectedMessage string
+	}{
+		{
+			testName:        "test delete user with id  ",
+			input:           1,
+			expectedError:   nil,
+			expectedMessage: "user deleted",
+		},
+	}
+	for _, tc := range testCases {
+		ctx := context.Background()
+		assert := assert.New(t)
+		httpRepoMock.On("DeleteUser", mock.Anything, mock.Anything).Return(tc.expectedMessage, tc.expectedError)
+		httpSrv := NewHttpService(httpRepoMock, logger)
+		_, err := httpSrv.DeleteUser(ctx, tc.input)
+		assert.Equal(tc.expectedError, err)
 	}
 }
