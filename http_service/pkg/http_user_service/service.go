@@ -17,10 +17,10 @@ type HttpService struct {
 }
 
 type Repository interface {
-	CreateUser(context.Context, entities.User) (int32, error)
-	GetUser(context.Context, int32) (entities.User, error)
-	UpdateUser(context.Context, entities.User) (string, error)
-	DeleteUser(context.Context, int32) (string, error)
+	CreateUser(ctx context.Context, usr entities.User) (int32, error)
+	GetUser(ctx context.Context, id int32) (entities.User, error)
+	UpdateUser(ctx context.Context, usr entities.User) (string, error)
+	DeleteUser(ctx context.Context, id int32) (string, error)
 }
 
 type Validator interface {
