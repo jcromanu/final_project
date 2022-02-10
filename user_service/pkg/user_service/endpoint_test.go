@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/go-kit/log"
+	"github.com/jcromanu/final_project/user_service/errors"
 	"github.com/jcromanu/final_project/user_service/pkg/entities"
 
 	"github.com/stretchr/testify/assert"
@@ -15,36 +16,34 @@ import (
 func TestMakeCreateUserEndpoint(t *testing.T) {
 	logger := log.NewLogfmtLogger(os.Stderr)
 	ctx := context.Background()
-	serviceMock := new(ServiceMock)
 	testCases := []struct {
 		testName       string
 		input          createUserRequest
-		expectedOutput int32
+		expectedOutput createUserResponse
 		expectedError  error
 	}{
 		{
-			testName:       "create endpoint user with all fields success ",
-			input:          createUserRequest{User: entities.User{Name: "Juan", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}}},
-			expectedOutput: 1,
+			testName:       "test create endpoint user with all fields ",
+			input:          createUserRequest{User: entities.User{Id: 0, Name: "Juan", Pwd_hash: "hash", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			expectedOutput: createUserResponse{User: entities.User{Id: 1}, Message: entities.Message{Message: "User created", Code: 0}},
 			expectedError:  nil,
+		},
+		{
+			testName:       "test create endpoint empty name ",
+			input:          createUserRequest{User: entities.User{Id: 0, Name: "", Pwd_hash: "hash", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			expectedOutput: createUserResponse{},
+			expectedError:  errors.NewBadRequestError(),
 		},
 	}
 	for _, tc := range testCases {
+		serviceMock := new(ServiceMock)
 		t.Run(tc.testName, func(t *testing.T) {
-			serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
+			serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput.User.Id, tc.expectedError)
 			ep := makeCreateUserEndpoint(serviceMock, logger)
 			result, err := ep(ctx, tc.input)
-			if err != nil {
-				t.Errorf("Error creating user endpoint")
-				return
-			}
-			re, ok := result.(createUserResponse)
-			if !ok {
-				t.Errorf("Error parsing user response on test")
-				return
-			}
-			assert.Equal(t, tc.expectedOutput, re.User.Id, "Error on user response")
-			assert.Equal(t, tc.expectedError, err, "Error on user response")
+			assert.Equal(t, tc.expectedError, err, "Error on service create user  ")
+			re, _ := result.(createUserResponse)
+			assert.Equal(t, tc.expectedOutput, re, "Unexpected output")
 		})
 	}
 }
@@ -52,7 +51,6 @@ func TestMakeCreateUserEndpoint(t *testing.T) {
 func TestMakeGetUserEndpoint(t *testing.T) {
 	logger := log.NewLogfmtLogger(os.Stderr)
 	ctx := context.Background()
-	serviceMock := new(ServiceMock)
 	testCases := []struct {
 		testName       string
 		input          getUserRequest
@@ -60,7 +58,7 @@ func TestMakeGetUserEndpoint(t *testing.T) {
 		expectedError  error
 	}{
 		{
-			testName:       "get  endpoint user with all fields success ",
+			testName:       "test get endpoint user with all fields   ",
 			input:          getUserRequest{Id: 1},
 			expectedOutput: entities.User{Id: 1},
 			expectedError:  nil,
@@ -68,6 +66,7 @@ func TestMakeGetUserEndpoint(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
+			serviceMock := new(ServiceMock)
 			serviceMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.input.Id, tc.expectedError)
 			ep := makeGetUserEndpoint(serviceMock, logger)
 			result, err := ep(ctx, tc.input)
@@ -89,7 +88,6 @@ func TestMakeGetUserEndpoint(t *testing.T) {
 func TestMakeUpdateUserEndpoint(t *testing.T) {
 	logger := log.NewLogfmtLogger(os.Stderr)
 	ctx := context.Background()
-	serviceMock := new(ServiceMock)
 	testCases := []struct {
 		testName       string
 		input          updateUserRequest
@@ -97,7 +95,7 @@ func TestMakeUpdateUserEndpoint(t *testing.T) {
 		expectedError  error
 	}{
 		{
-			testName:       "update endpoint user with all fields success ",
+			testName:       "test update endpoint user with all fields   ",
 			input:          updateUserRequest{entities.User{Id: 1, Name: "Juan", Age: 30, Pwd_hash: "hash ", Additional_information: "additional info", Parent: []string{"parent sample"}}},
 			expectedOutput: nil,
 			expectedError:  nil,
@@ -105,6 +103,7 @@ func TestMakeUpdateUserEndpoint(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
+			serviceMock := new(ServiceMock)
 			serviceMock.On("UpdateUser", mock.Anything, mock.Anything).Return(tc.expectedError)
 			ep := makeUpdatesUserEndpoint(serviceMock, logger)
 			result, err := ep(ctx, tc.input)
@@ -125,20 +124,20 @@ func TestMakeUpdateUserEndpoint(t *testing.T) {
 func TestMakeDeleteUserEndpoint(t *testing.T) {
 	logger := log.NewLogfmtLogger(os.Stderr)
 	ctx := context.Background()
-	serviceMock := new(ServiceMock)
 	testCases := []struct {
 		testName      string
 		input         deleteUserRequest
 		expectedError error
 	}{
 		{
-			testName:      "delete user on request ",
+			testName:      "test delete user on request  ",
 			input:         deleteUserRequest{id: 1},
 			expectedError: nil,
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
+			serviceMock := new(ServiceMock)
 			serviceMock.On("DeleteUser", mock.Anything, mock.Anything).Return(tc.expectedError)
 			ep := makeDeleteUserEndpoint(serviceMock, logger)
 			res, err := ep(ctx, tc.input)

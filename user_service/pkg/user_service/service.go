@@ -8,13 +8,15 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/go-playground/validator/v10"
 	"github.com/jcromanu/final_project/user_service/errors"
 	"github.com/jcromanu/final_project/user_service/pkg/entities"
 )
 
 type UserService struct {
-	repo   Repository
-	logger log.Logger
+	repo      Repository
+	logger    log.Logger
+	validator *validator.Validate
 }
 
 type Repository interface {
@@ -26,12 +28,17 @@ type Repository interface {
 
 func NewService(repo Repository, logger log.Logger) *UserService {
 	return &UserService{
-		repo:   repo,
-		logger: logger,
+		repo:      repo,
+		logger:    logger,
+		validator: validator.New(),
 	}
 }
 
 func (srv *UserService) CreateUser(ctx context.Context, user entities.User) (entities.User, error) {
+	if err := srv.validator.Struct(user); err != nil {
+		level.Error(srv.logger).Log("Bad request  : ", err)
+		return entities.User{}, errors.NewBadRequestError()
+	}
 	id, err := srv.repo.CreateUser(ctx, user)
 	if err != nil {
 		level.Error(srv.logger).Log("Error creating user in database:", err)
@@ -57,6 +64,10 @@ func (srv *UserService) GetUser(ctx context.Context, id int32) (entities.User, e
 func (srv *UserService) UpdateUser(ctx context.Context, usr entities.User) error {
 	if usr.Id <= 0 {
 		level.Error(srv.logger).Log("Empty user id ")
+		return errors.NewBadRequestError()
+	}
+	if err := srv.validator.Struct(usr); err != nil {
+		level.Error(srv.logger).Log("Bad request  : ", err)
 		return errors.NewBadRequestError()
 	}
 	err := srv.repo.UpdateUser(ctx, usr)

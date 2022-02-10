@@ -27,7 +27,6 @@ func main() {
 	}
 	middlewares := []endpoint.Middleware{}
 	cfg := serverConfig{}
-
 	errs := make(chan error)
 	go func() {
 		c := make(chan os.Signal, 1)

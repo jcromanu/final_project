@@ -45,6 +45,7 @@ func (r *repository) GetUser(ctx context.Context, id int32) (entities.User, erro
 		Additional_information: userResponse.User.AdditionalInformation,
 		Pwd_hash:               userResponse.User.PwdHash,
 		Name:                   userResponse.User.Name,
+		Parent:                 userResponse.User.Parent,
 	}
 	return usr, nil
 }

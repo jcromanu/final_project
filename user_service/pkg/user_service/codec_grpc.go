@@ -58,7 +58,7 @@ func makeEncodeGRPCGetUserResponse(logger log.Logger) kitGRPC.EncodeResponseFunc
 			level.Error(logger).Log("Get user response  pb not matched")
 			return nil, errors.NewProtoResponseError()
 		}
-		return &pb.GetUserResponse{User: &pb.User{Id: res.User.Id, PwdHash: res.User.Pwd_hash, Name: res.User.Name, Age: res.User.Age, AdditionalInformation: res.User.Additional_information}, Message: &pb.MessageResponse{Code: res.Message.Code, Message: res.Message.Message}}, nil
+		return &pb.GetUserResponse{User: &pb.User{Id: res.User.Id, PwdHash: res.User.Pwd_hash, Name: res.User.Name, Age: res.User.Age, AdditionalInformation: res.User.Additional_information, Parent: res.User.Parent}, Message: &pb.MessageResponse{Code: res.Message.Code, Message: res.Message.Message}}, nil
 	}
 }
 
