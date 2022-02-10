@@ -1,6 +1,6 @@
 version: '3.8'
 services: 
- db:
+ mysql:
     image: mysql:8.0.28
     restart: always 
     container_name: mysql
@@ -16,9 +16,27 @@ services:
       -  mysql_db:/var/lib/mysql
     networks:
       - main_network
+ mongo:
+    image: mongo
+    container_name: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+      - MONGO_INITDB_DATABASE=USERS 
+    restart: always
+    ports:
+      - '27017:27017'
+    expose:
+      - '27017'
+    volumes:
+      - mongo_db:/data/db
+    networks:
+      - main_network
 volumes:
   mysql_db:
-    name: mysql_db 
+    name: mysql_db
+  mongo_db:
+    name: mongo_db 
 
 networks:
   main_network:
