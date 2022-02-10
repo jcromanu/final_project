@@ -50,12 +50,18 @@ func NewHTTPServer(e Endpoints, logger log.Logger) http.Handler {
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	e, ok := status.FromError(err)
 	if !ok {
-		e, _ := err.(errors.CustomError)
+		e, ok := err.(errors.CustomError)
+		if ok {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(e.Code())
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"error": err.Error(),
+			})
+			return
+		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(e.Code())
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"error": err.Error(),
-		})
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(http.StatusText(http.StatusInternalServerError))
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

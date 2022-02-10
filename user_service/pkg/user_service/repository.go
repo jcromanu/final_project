@@ -38,7 +38,10 @@ func (r *userRepository) CreateUser(ctx context.Context, usr entities.User) (int
 		level.Error(r.log).Log("Error creating user" + err.Error())
 		return 0, errors.NewInternalError()
 	}
-	id, _ := res.LastInsertId()
+	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, errors.NewInternalError()
+	}
 	return int32(id), nil
 }
 
