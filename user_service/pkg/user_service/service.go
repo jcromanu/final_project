@@ -48,7 +48,7 @@ func (srv *UserService) CreateUser(ctx context.Context, user entities.User) (ent
 		return entities.User{}, err
 	}
 	user.Id = id
-	return user, err
+	return user, nil
 }
 
 func (srv *UserService) GetUser(ctx context.Context, id int32) (entities.User, error) {
@@ -61,7 +61,7 @@ func (srv *UserService) GetUser(ctx context.Context, id int32) (entities.User, e
 		level.Error(srv.logger).Log("Error retrieving  user in database:", err)
 		return entities.User{}, err
 	}
-	return usr, err
+	return usr, nil
 }
 
 func (srv *UserService) UpdateUser(ctx context.Context, usr entities.User) error {
