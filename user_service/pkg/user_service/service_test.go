@@ -24,13 +24,13 @@ func TestServiceCreateUser(t *testing.T) {
 	}{
 		{
 			testName:       "test create user with all fields",
-			input:          entities.User{Name: "Juan", Age: 30, Pwd_hash: "hash", Additional_information: "additional info", Parent: []string{"parent sample"}},
+			input:          entities.User{Name: "Juan", Age: 30, PwdHash: "hash", AdditionalInformation: "additional info", Parent: []string{"parent sample"}},
 			expectedOutput: 1,
 			expectedError:  nil,
 		},
 		{
 			testName:       "test create user empty required field",
-			input:          entities.User{Name: "Juan", Age: 30, Pwd_hash: "", Additional_information: "additional info", Parent: []string{"parent sample"}},
+			input:          entities.User{Name: "Juan", Age: 30, PwdHash: "", AdditionalInformation: "additional info", Parent: []string{"parent sample"}},
 			expectedOutput: 0,
 			expectedError:  errors.NewBadRequestError(),
 		},
@@ -92,17 +92,17 @@ func TestServiceUpdateUser(t *testing.T) {
 	}{
 		{
 			testName:      "test update user valid id",
-			input:         entities.User{Id: 1, Name: "Juan", Age: 30, Pwd_hash: "hash ", Additional_information: "additional info", Parent: []string{"parent sample"}},
+			input:         entities.User{Id: 1, Name: "Juan", Age: 30, PwdHash: "hash ", AdditionalInformation: "additional info", Parent: []string{"parent sample"}},
 			expectedError: nil,
 		},
 		{
 			testName:      "test update user invalid id",
-			input:         entities.User{Id: 0, Name: "Juan", Age: 30, Pwd_hash: "hash ", Additional_information: "additional info", Parent: []string{"parent sample"}},
+			input:         entities.User{Id: 0, Name: "Juan", Age: 30, PwdHash: "hash ", AdditionalInformation: "additional info", Parent: []string{"parent sample"}},
 			expectedError: errors.NewBadRequestError(),
 		},
 		{
 			testName:      "test update user empty required field  ",
-			input:         entities.User{Id: 1, Name: "", Age: 30, Pwd_hash: "hash ", Additional_information: "additional info", Parent: []string{"parent sample"}},
+			input:         entities.User{Id: 1, Name: "", Age: 30, PwdHash: "hash ", AdditionalInformation: "additional info", Parent: []string{"parent sample"}},
 			expectedError: errors.NewBadRequestError(),
 		},
 	}

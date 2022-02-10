@@ -24,13 +24,13 @@ func TestMakeCreateUserEndpoint(t *testing.T) {
 	}{
 		{
 			testName:       "test create endpoint user with all fields ",
-			input:          createUserRequest{User: entities.User{Id: 0, Name: "Juan", Pwd_hash: "hash", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			input:          createUserRequest{User: entities.User{Id: 0, Name: "Juan", PwdHash: "hash", Age: 30, AdditionalInformation: "additional info", Parent: []string{"parent sample"}}},
 			expectedOutput: createUserResponse{User: entities.User{Id: 1}, Message: entities.Message{Message: "User created", Code: 0}},
 			expectedError:  nil,
 		},
 		{
 			testName:       "test create endpoint empty name ",
-			input:          createUserRequest{User: entities.User{Id: 0, Name: "", Pwd_hash: "hash", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			input:          createUserRequest{User: entities.User{Id: 0, Name: "", PwdHash: "hash", Age: 30, AdditionalInformation: "additional info", Parent: []string{"parent sample"}}},
 			expectedOutput: createUserResponse{},
 			expectedError:  errors.NewBadRequestError(),
 		},
@@ -96,7 +96,7 @@ func TestMakeUpdateUserEndpoint(t *testing.T) {
 	}{
 		{
 			testName:       "test update endpoint user with all fields   ",
-			input:          updateUserRequest{entities.User{Id: 1, Name: "Juan", Age: 30, Pwd_hash: "hash ", Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			input:          updateUserRequest{entities.User{Id: 1, Name: "Juan", Age: 30, PwdHash: "hash ", AdditionalInformation: "additional info", Parent: []string{"parent sample"}}},
 			expectedOutput: nil,
 			expectedError:  nil,
 		},

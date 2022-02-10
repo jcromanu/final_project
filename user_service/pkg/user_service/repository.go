@@ -33,7 +33,7 @@ func NewUserRepository(db *sql.DB, log log.Logger) *userRepository {
 
 func (r *userRepository) CreateUser(ctx context.Context, usr entities.User) (int32, error) {
 	var res sql.Result
-	res, err := r.db.ExecContext(ctx, createUserSQL, usr.Name, usr.Age, usr.Pwd_hash, usr.Additional_information, strings.Join(usr.Parent, ","))
+	res, err := r.db.ExecContext(ctx, createUserSQL, usr.Name, usr.Age, usr.PwdHash, usr.AdditionalInformation, strings.Join(usr.Parent, ","))
 	if err != nil {
 		level.Error(r.log).Log("Error creating user" + err.Error())
 		return 0, errors.NewInternalError()
@@ -45,7 +45,7 @@ func (r *userRepository) CreateUser(ctx context.Context, usr entities.User) (int
 func (r *userRepository) GetUser(ctx context.Context, id int32) (entities.User, error) {
 	var parent *string
 	usr := entities.User{}
-	err := r.db.QueryRow(getUserSQL, id).Scan(&usr.Name, &usr.Pwd_hash, &usr.Additional_information, &usr.Age, &parent)
+	err := r.db.QueryRow(getUserSQL, id).Scan(&usr.Name, &usr.PwdHash, &usr.AdditionalInformation, &usr.Age, &parent)
 	if err == sql.ErrNoRows {
 		level.Error(r.log).Log("Error retrieving user" + err.Error())
 		return entities.User{}, errors.NewUserNotFoundError()
@@ -66,7 +66,7 @@ func (r *userRepository) UpdateUser(ctx context.Context, usr entities.User) erro
 		return errors.NewUserNotFoundError()
 	}
 
-	_, err := r.db.ExecContext(ctx, updateUserSQL, usr.Name, usr.Age, usr.Pwd_hash, usr.Additional_information, strings.Join(usr.Parent, ","), usr.Id)
+	_, err := r.db.ExecContext(ctx, updateUserSQL, usr.Name, usr.Age, usr.PwdHash, usr.AdditionalInformation, strings.Join(usr.Parent, ","), usr.Id)
 	if err != nil {
 		level.Error(r.log).Log("Error updating user " + err.Error())
 		return errors.NewInternalError()

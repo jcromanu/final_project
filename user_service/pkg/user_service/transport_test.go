@@ -30,7 +30,7 @@ func TestTransportCreateUser(t *testing.T) {
 	}{
 		{
 			testName:       "test create user server  user with all fields success  ",
-			input:          createUserRequest{User: entities.User{Name: "Juan", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			input:          createUserRequest{User: entities.User{Name: "Juan", Age: 30, AdditionalInformation: "additional info", Parent: []string{"parent sample"}}},
 			expectedOutput: 1,
 			expectedError:  nil,
 		},

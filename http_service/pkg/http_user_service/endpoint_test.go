@@ -22,7 +22,7 @@ func TestMakeCreateHTTPUserEndpooint(t *testing.T) {
 	}{
 		{
 			testName:       "test create user endpoint ",
-			input:          createUserRequest{entities.User{Name: "Juan", Pwd_hash: "ooo", Age: 31, Additional_information: "no info", Parent: []string{}}},
+			input:          createUserRequest{entities.User{Name: "Juan", PwdHash: "ooo", Age: 31, AdditionalInformation: "no info", Parent: []string{}}},
 			expectedOutput: 1,
 			expectedError:  nil,
 		},
@@ -98,7 +98,7 @@ func TestMakeUpdateHTTPUserEndpooint(t *testing.T) {
 	}{
 		{
 			testName:        "test update user endpoint",
-			input:           updateUserRequest{entities.User{Id: 1, Name: "Juan", Pwd_hash: "ooo", Age: 31, Additional_information: "no info", Parent: []string{}}},
+			input:           updateUserRequest{entities.User{Id: 1, Name: "Juan", PwdHash: "ooo", Age: 31, AdditionalInformation: "no info", Parent: []string{}}},
 			expectedError:   nil,
 			expectedMessage: "user updated",
 		},
