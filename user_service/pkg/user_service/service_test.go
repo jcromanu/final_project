@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/go-kit/log"
+	"github.com/go-playground/validator/v10"
 
 	"github.com/jcromanu/final_project/user_service/errors"
 	"github.com/jcromanu/final_project/user_service/pkg/entities"
@@ -38,8 +39,9 @@ func TestServiceCreateUser(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
 			repoMock := new(RepositoryMock)
+			validator := validator.New()
 			repoMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
-			service := NewService(repoMock, logger)
+			service := NewService(repoMock, logger, validator)
 			usr, err := service.CreateUser(ctx, tc.input)
 			assert.Equal(t, tc.expectedError, err)
 			assert.Equal(t, tc.expectedOutput, usr.Id)
@@ -73,7 +75,8 @@ func TestServiceGetUser(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
 			repoMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.input, tc.expectedError)
-			service := NewService(repoMock, logger)
+			validator := validator.New()
+			service := NewService(repoMock, logger, validator)
 			usr, err := service.GetUser(ctx, tc.input)
 			assert.Equal(t, tc.expectedOutput, usr)
 			assert.Equal(t, tc.expectedError, err)
@@ -109,7 +112,8 @@ func TestServiceUpdateUser(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
 			repoMock.On("UpdateUser", mock.Anything, mock.Anything).Return(tc.expectedError)
-			service := NewService(repoMock, logger)
+			validator := validator.New()
+			service := NewService(repoMock, logger, validator)
 			err := service.UpdateUser(ctx, tc.input)
 			assert.Equal(t, tc.expectedError, err)
 		})
@@ -139,7 +143,8 @@ func TestServiceDeleteUser(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
 			repoMock.On("DeleteUser", mock.Anything, mock.Anything).Return(tc.expectedError)
-			service := NewService(repoMock, logger)
+			validator := validator.New()
+			service := NewService(repoMock, logger, validator)
 			err := service.DeleteUser(ctx, tc.input)
 			assert.Equal(t, tc.expectedError, err)
 		})

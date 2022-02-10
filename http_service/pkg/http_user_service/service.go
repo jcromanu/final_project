@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"github.com/go-playground/validator/v10"
 
 	"github.com/jcromanu/final_project/http_service/errors"
 	"github.com/jcromanu/final_project/http_service/pkg/entities"
@@ -14,7 +13,7 @@ import (
 type HttpService struct {
 	repo      Repository
 	log       log.Logger
-	validator *validator.Validate
+	validator Validator
 }
 
 type Repository interface {
@@ -24,11 +23,15 @@ type Repository interface {
 	DeleteUser(context.Context, int32) (string, error)
 }
 
-func NewHttpService(repo Repository, logger log.Logger) *HttpService {
+type Validator interface {
+	Struct(s interface{}) error
+}
+
+func NewHttpService(repo Repository, logger log.Logger, validator Validator) *HttpService {
 	return &HttpService{
 		repo:      repo,
 		log:       logger,
-		validator: validator.New(),
+		validator: validator,
 	}
 }
 
