@@ -24,13 +24,13 @@ func TestMakeCreateUserEndpoint(t *testing.T) {
 	}{
 		{
 			testName:       "test create endpoint user with all fields ",
-			input:          createUserRequest{User: entities.User{Id: 0, Name: "Juan", PwdHash: "hash", Age: 30, AdditionalInformation: "additional info", Parent: []string{"parent sample"}}},
-			expectedOutput: createUserResponse{User: entities.User{Id: 1}, Message: entities.Message{Message: "User created", Code: 0}},
+			input:          createUserRequest{user: entities.User{Id: 0, Name: "Juan", PwdHash: "hash", Age: 30, AdditionalInformation: "additional info", Parent: []string{"parent sample"}}},
+			expectedOutput: createUserResponse{user: entities.User{Id: 1}, message: entities.Message{Message: "User created", Code: 0}},
 			expectedError:  nil,
 		},
 		{
 			testName:       "test create endpoint empty name ",
-			input:          createUserRequest{User: entities.User{Id: 0, Name: "", PwdHash: "hash", Age: 30, AdditionalInformation: "additional info", Parent: []string{"parent sample"}}},
+			input:          createUserRequest{user: entities.User{Id: 0, Name: "", PwdHash: "hash", Age: 30, AdditionalInformation: "additional info", Parent: []string{"parent sample"}}},
 			expectedOutput: createUserResponse{},
 			expectedError:  errors.NewBadRequestError(),
 		},
@@ -38,7 +38,7 @@ func TestMakeCreateUserEndpoint(t *testing.T) {
 	for _, tc := range testCases {
 		serviceMock := new(ServiceMock)
 		t.Run(tc.testName, func(t *testing.T) {
-			serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput.User.Id, tc.expectedError)
+			serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput.user.Id, tc.expectedError)
 			ep := makeCreateUserEndpoint(serviceMock, logger)
 			result, err := ep(ctx, tc.input)
 			assert.Equal(t, tc.expectedError, err, "Error on service create user  ")
@@ -59,7 +59,7 @@ func TestMakeGetUserEndpoint(t *testing.T) {
 	}{
 		{
 			testName:       "test get endpoint user with all fields   ",
-			input:          getUserRequest{Id: 1},
+			input:          getUserRequest{id: 1},
 			expectedOutput: entities.User{Id: 1},
 			expectedError:  nil,
 		},
@@ -67,7 +67,7 @@ func TestMakeGetUserEndpoint(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
 			serviceMock := new(ServiceMock)
-			serviceMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.input.Id, tc.expectedError)
+			serviceMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.input.id, tc.expectedError)
 			ep := makeGetUserEndpoint(serviceMock, logger)
 			result, err := ep(ctx, tc.input)
 			if err != nil {
@@ -79,7 +79,7 @@ func TestMakeGetUserEndpoint(t *testing.T) {
 				t.Errorf("Error parsing user response on test")
 				return
 			}
-			assert.Equal(t, tc.expectedOutput, re.User, "Error on user response")
+			assert.Equal(t, tc.expectedOutput, re.user, "Error on user response")
 			assert.Equal(t, tc.expectedError, err, "Error on user response")
 		})
 	}

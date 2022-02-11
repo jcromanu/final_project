@@ -56,10 +56,10 @@ func makeDeleteUserGRPCServer(ep endpoint.Endpoint, opts []kitGRPC.ServerOption,
 
 func NewGRPCServer(ep Endpoints, opts []kitGRPC.ServerOption, log log.Logger) pb.UserServiceServer {
 	return &userServiceServer{
-		createUser: makeCreateUserGRPCServer(ep.CreateUser, opts, log),
-		getUser:    makeGetUserGRPCServer(ep.GetUser, opts, log),
-		updateUser: makeUpdateUserGRPCServer(ep.UpdateUser, opts, log),
-		deleteUser: makeDeleteUserGRPCServer(ep.DeleteUser, opts, log),
+		createUser: makeCreateUserGRPCServer(ep.createUser, opts, log),
+		getUser:    makeGetUserGRPCServer(ep.getUser, opts, log),
+		updateUser: makeUpdateUserGRPCServer(ep.updateUser, opts, log),
+		deleteUser: makeDeleteUserGRPCServer(ep.deleteUser, opts, log),
 	}
 }
 
@@ -109,8 +109,4 @@ func (srv *userServiceServer) DeleteUser(ctx context.Context, req *pb.DeleteUser
 		return nil, errors.NewBadResponseTypeError()
 	}
 	return r, nil
-}
-
-func (srv *userServiceServer) mustEmbedUnimplementedUserServiceServer() {
-
 }

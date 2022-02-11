@@ -21,25 +21,25 @@ func NewHTTPServer(e Endpoints, logger log.Logger) http.Handler {
 		httptransport.ServerErrorEncoder(encodeError),
 	}
 	r.Methods("POST").Path("/users").Handler(httptransport.NewServer(
-		e.CreateUser,
+		e.createUser,
 		decodePostCreateUserRequest,
 		encodeResponse,
 		opt...,
 	))
 	r.Methods("GET").Path("/users/{id}").Handler(httptransport.NewServer(
-		e.GetUser,
+		e.getUser,
 		decodeGetUserRequest,
 		encodeResponse,
 		opt...,
 	))
 	r.Methods("PUT").Path("/users/{id}").Handler(httptransport.NewServer(
-		e.UpdateUser,
+		e.updateUser,
 		decodePutUpdateUserRequest,
 		encodeResponse,
 		opt...,
 	))
 	r.Methods("DELETE").Path("/users/{id}").Handler(httptransport.NewServer(
-		e.DeleteUser,
+		e.deleteUser,
 		decodeDeleteUserRequest,
 		encodeResponse,
 		opt...,

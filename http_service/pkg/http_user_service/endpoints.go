@@ -12,10 +12,10 @@ import (
 )
 
 type Endpoints struct {
-	CreateUser endpoint.Endpoint
-	GetUser    endpoint.Endpoint
-	UpdateUser endpoint.Endpoint
-	DeleteUser endpoint.Endpoint
+	createUser endpoint.Endpoint
+	getUser    endpoint.Endpoint
+	updateUser endpoint.Endpoint
+	deleteUser endpoint.Endpoint
 }
 
 type Service interface {
@@ -27,10 +27,10 @@ type Service interface {
 
 func MakeEndpoints(srv Service, logger log.Logger, middlewares []endpoint.Middleware) Endpoints {
 	return Endpoints{
-		CreateUser: makeCreateUserEndpoint(srv, logger),
-		GetUser:    makeGetUserEndpoint(srv, logger),
-		UpdateUser: makeUpdateUserEndpoint(srv, logger),
-		DeleteUser: makeDeleteUserEndpoint(srv, logger),
+		createUser: makeCreateUserEndpoint(srv, logger),
+		getUser:    makeGetUserEndpoint(srv, logger),
+		updateUser: makeUpdateUserEndpoint(srv, logger),
+		deleteUser: makeDeleteUserEndpoint(srv, logger),
 	}
 }
 
