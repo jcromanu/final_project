@@ -13,11 +13,11 @@ service UserService {
 
 message User {
     int32 id =1 ;
-    string pwd_hash=2;
-    string name=3;
-    int32 age=4;
-    string additional_information = 5; 
-    repeated string parent = 6; 
+    string pwd_hash=3;
+    string name=5;
+    int32 age=7;
+    string additional_information = 9; 
+    repeated string parent = 11; 
 }
 
 message CreateUserRequest {
@@ -26,7 +26,7 @@ message CreateUserRequest {
 
 message CreateUserResponse { 
     User user = 1 ;
-    MessageResponse message = 2; 
+    MessageResponse message = 3; 
    }
 
 message GetUserRequest {
@@ -35,7 +35,7 @@ message GetUserRequest {
 
 message GetUserResponse {
     User user = 1;
-    MessageResponse message = 2; 
+    MessageResponse message = 3; 
 }
 
 message UpdateUserRequest {
@@ -48,7 +48,7 @@ message UpdateUserResponse {
 
 message MessageResponse {
        int32 code = 1; 
-       string message = 2;
+       string message = 3;
 }
 
 message DeleteUserRequest {
