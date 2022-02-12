@@ -8,26 +8,37 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/go-playground/validator/v10"
+	"github.com/jcromanu/final_project/user_service/errors"
 	"github.com/jcromanu/final_project/user_service/pkg/entities"
 )
 
-type Service interface {
-	CreateUser(ctx context.Context, user entities.User) (entities.User, error)
-}
-
 type UserService struct {
-	repo   UserRepository
-	logger log.Logger
+	repo      Repository
+	logger    log.Logger
+	validator *validator.Validate
 }
 
-func NewService(repo UserRepository, logger log.Logger) *UserService {
+type Repository interface {
+	CreateUser(context.Context, entities.User) (int32, error)
+	GetUser(context.Context, int32) (entities.User, error)
+	UpdateUser(context.Context, entities.User) error
+	DeleteUser(context.Context, int32) error
+}
+
+func NewService(repo Repository, logger log.Logger) *UserService {
 	return &UserService{
-		repo:   repo,
-		logger: logger,
+		repo:      repo,
+		logger:    logger,
+		validator: validator.New(),
 	}
 }
 
 func (srv *UserService) CreateUser(ctx context.Context, user entities.User) (entities.User, error) {
+	if err := srv.validator.Struct(user); err != nil {
+		level.Error(srv.logger).Log("Bad request  : ", err)
+		return entities.User{}, errors.NewBadRequestError()
+	}
 	id, err := srv.repo.CreateUser(ctx, user)
 	if err != nil {
 		level.Error(srv.logger).Log("Error creating user in database:", err)
@@ -35,4 +46,47 @@ func (srv *UserService) CreateUser(ctx context.Context, user entities.User) (ent
 	}
 	user.Id = id
 	return user, err
+}
+
+func (srv *UserService) GetUser(ctx context.Context, id int32) (entities.User, error) {
+	if id <= 0 {
+		level.Error(srv.logger).Log("Empty user id ")
+		return entities.User{}, errors.NewBadRequestError()
+	}
+	usr, err := srv.repo.GetUser(ctx, id)
+	if err != nil {
+		level.Error(srv.logger).Log("Error retrieving  user in database:", err)
+		return entities.User{}, err
+	}
+	return usr, err
+}
+
+func (srv *UserService) UpdateUser(ctx context.Context, usr entities.User) error {
+	if usr.Id <= 0 {
+		level.Error(srv.logger).Log("Empty user id ")
+		return errors.NewBadRequestError()
+	}
+	if err := srv.validator.Struct(usr); err != nil {
+		level.Error(srv.logger).Log("Bad request  : ", err)
+		return errors.NewBadRequestError()
+	}
+	err := srv.repo.UpdateUser(ctx, usr)
+	if err != nil {
+		level.Error(srv.logger).Log("Error updating user in database:", err)
+		return err
+	}
+	return nil
+}
+
+func (srv *UserService) DeleteUser(ctx context.Context, id int32) error {
+	if id <= 0 {
+		level.Error(srv.logger).Log("Empty user id ")
+		return errors.NewBadRequestError()
+	}
+	err := srv.repo.DeleteUser(ctx, id)
+	if err != nil {
+		level.Error(srv.logger).Log("Error deleting user in database:", err)
+		return err
+	}
+	return nil
 }

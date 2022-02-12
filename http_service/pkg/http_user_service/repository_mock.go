@@ -1,9 +1,9 @@
-package userservice
+package httpuserservice
 
 import (
 	"context"
 
-	"github.com/jcromanu/final_project/user_service/pkg/entities"
+	"github.com/jcromanu/final_project/http_service/pkg/entities"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -19,16 +19,15 @@ func (m *RepositoryMock) CreateUser(ctx context.Context, usr entities.User) (int
 
 func (m *RepositoryMock) GetUser(ctx context.Context, id int32) (entities.User, error) {
 	args := m.Called(ctx, id)
-	nId := args.Get(0).(int32)
-	return entities.User{Id: nId}, args.Error(1)
+	return entities.User{Id: id, Name: "Juan"}, args.Error(1)
 }
 
-func (m *RepositoryMock) UpdateUser(ctx context.Context, usr entities.User) error {
+func (m *RepositoryMock) UpdateUser(ctx context.Context, usr entities.User) (string, error) {
 	args := m.Called(ctx, usr)
-	return args.Error(0)
+	return args.String(0), args.Error(1)
 }
 
-func (m *RepositoryMock) DeleteUser(ctx context.Context, id int32) error {
+func (m *RepositoryMock) DeleteUser(ctx context.Context, id int32) (string, error) {
 	args := m.Called(ctx, id)
-	return args.Error(0)
+	return args.String(0), args.Error(1)
 }

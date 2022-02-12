@@ -1,6 +1,6 @@
-package userservice
+package httpuserservice
 
-import "github.com/jcromanu/final_project/user_service/pkg/entities"
+import "github.com/jcromanu/final_project/http_service/pkg/entities"
 
 type createUserRequest struct {
 	User entities.User
@@ -15,5 +15,5 @@ type updateUserRequest struct {
 }
 
 type deleteUserRequest struct {
-	id int32
+	Id int32
 }

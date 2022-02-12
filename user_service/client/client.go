@@ -27,4 +27,28 @@ func main() {
 		log.Fatal("Error on simple rpc ", err)
 	}
 	fmt.Print("User id:", response.User.Id)
+
+	fmt.Println("Starting get user")
+	getUserReq := &pb.GetUserRequest{Id: 53}
+	getRes, err := client.GetUser(context.Background(), getUserReq)
+	if err != nil {
+		log.Fatal("Error on simple rpc ", err)
+	}
+	fmt.Print("User id:", getRes.User.Name)
+
+	fmt.Println("Starting update user")
+	updateUserReq := &pb.UpdateUserRequest{User: &pb.User{Id: 5, Name: "Pedro", Age: 30, PwdHash: "hash ", AdditionalInformation: "additional info", Parent: []string{"parent sample"}}}
+	updateRes, err := client.UpdateUser(context.Background(), updateUserReq)
+	if err != nil {
+		log.Fatal("Error on simple rpc ", err)
+	}
+	fmt.Println("Updated: " + updateRes.Message.Message)
+
+	fmt.Println("Starting delete user")
+	deleteUserReq := &pb.DeleteUserRequest{Id: 30}
+	deleteRes, err := client.DeleteUser(context.Background(), deleteUserReq)
+	if err != nil {
+		log.Fatal("Error on simple rpc ", err)
+	}
+	fmt.Println("Deleted id : " + deleteRes.Message.Message)
 }

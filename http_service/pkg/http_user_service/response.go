@@ -1,6 +1,6 @@
-package userservice
+package httpuserservice
 
-import "github.com/jcromanu/final_project/user_service/pkg/entities"
+import "github.com/jcromanu/final_project/http_service/pkg/entities"
 
 type createUserResponse struct {
 	User    entities.User
@@ -8,14 +8,13 @@ type createUserResponse struct {
 }
 
 type getUserResponse struct {
-	User    entities.User
-	Message entities.Message
+	User entities.User
 }
 
 type updateUserResponse struct {
-	Message entities.Message
+	Status string
 }
 
 type deleteUserResponse struct {
-	Message entities.Message
+	Status string
 }

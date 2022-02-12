@@ -6,45 +6,152 @@ import (
 	"testing"
 
 	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
+	"github.com/jcromanu/final_project/user_service/errors"
 	"github.com/jcromanu/final_project/user_service/pkg/entities"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
 )
 
-type EndpointTestSuite struct {
-	suite.Suite
-	logger log.Logger
-	ctx    context.Context
-}
-
-func (suite *EndpointTestSuite) SetupSuite() {
-	suite.logger = log.NewLogfmtLogger(os.Stderr)
-	suite.ctx = context.Background()
-	level.Info(suite.logger).Log("Iniciando Endpoint test suite ")
-}
-
-func (suite *EndpointTestSuite) TestmakeCreateUserEndpoint() {
-	serviceMock := new(ServiceMock)
-	usr := entities.User{Id: 1}
-	serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(usr, nil)
-	ep := makeCreateUserEndpoint(serviceMock, suite.logger)
-	req := createUserRequest{User: usr}
-	result, err := ep(suite.ctx, req)
-	if err != nil {
-		suite.T().Errorf("Error creating user endpoint")
-		return
+func TestMakeCreateUserEndpoint(t *testing.T) {
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	testCases := []struct {
+		testName       string
+		input          createUserRequest
+		expectedOutput createUserResponse
+		expectedError  error
+	}{
+		{
+			testName:       "test create endpoint user with all fields ",
+			input:          createUserRequest{User: entities.User{Id: 0, Name: "Juan", Pwd_hash: "hash", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			expectedOutput: createUserResponse{User: entities.User{Id: 1}, Message: entities.Message{Message: "User created", Code: 0}},
+			expectedError:  nil,
+		},
+		{
+			testName:       "test create endpoint empty name ",
+			input:          createUserRequest{User: entities.User{Id: 0, Name: "", Pwd_hash: "hash", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			expectedOutput: createUserResponse{},
+			expectedError:  errors.NewBadRequestError(),
+		},
 	}
-	re, ok := result.(createUserResponse)
-	if !ok {
-		suite.T().Errorf("Error parsing user response on test")
-		return
+	for _, tc := range testCases {
+		serviceMock := new(ServiceMock)
+		t.Run(tc.testName, func(t *testing.T) {
+			serviceMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput.User.Id, tc.expectedError)
+			ep := makeCreateUserEndpoint(serviceMock, logger)
+			result, err := ep(ctx, tc.input)
+			assert.Equal(t, tc.expectedError, err, "Error on service create user  ")
+			re, _ := result.(createUserResponse)
+			assert.Equal(t, tc.expectedOutput, re, "Unexpected output")
+		})
 	}
-	assert.Equal(suite.T(), req.User.Id, re.User.Id, "Error on user request")
 }
 
-func TestEndpointTestSuite(t *testing.T) {
-	suite.Run(t, new(EndpointTestSuite))
+func TestMakeGetUserEndpoint(t *testing.T) {
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	testCases := []struct {
+		testName       string
+		input          getUserRequest
+		expectedOutput entities.User
+		expectedError  error
+	}{
+		{
+			testName:       "test get endpoint user with all fields   ",
+			input:          getUserRequest{Id: 1},
+			expectedOutput: entities.User{Id: 1},
+			expectedError:  nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			serviceMock := new(ServiceMock)
+			serviceMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.input.Id, tc.expectedError)
+			ep := makeGetUserEndpoint(serviceMock, logger)
+			result, err := ep(ctx, tc.input)
+			if err != nil {
+				t.Errorf("Error creating user endpoint")
+				return
+			}
+			re, ok := result.(getUserResponse)
+			if !ok {
+				t.Errorf("Error parsing user response on test")
+				return
+			}
+			assert.Equal(t, tc.expectedOutput, re.User, "Error on user response")
+			assert.Equal(t, tc.expectedError, err, "Error on user response")
+		})
+	}
+}
+
+func TestMakeUpdateUserEndpoint(t *testing.T) {
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	testCases := []struct {
+		testName       string
+		input          updateUserRequest
+		expectedOutput error
+		expectedError  error
+	}{
+		{
+			testName:       "test update endpoint user with all fields   ",
+			input:          updateUserRequest{entities.User{Id: 1, Name: "Juan", Age: 30, Pwd_hash: "hash ", Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			expectedOutput: nil,
+			expectedError:  nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			serviceMock := new(ServiceMock)
+			serviceMock.On("UpdateUser", mock.Anything, mock.Anything).Return(tc.expectedError)
+			ep := makeUpdatesUserEndpoint(serviceMock, logger)
+			result, err := ep(ctx, tc.input)
+			if err != nil {
+				t.Errorf("Error creating user endpoint")
+				return
+			}
+			_, ok := result.(updateUserResponse)
+			if !ok {
+				t.Errorf("Error parsing user response on test")
+				return
+			}
+			assert.Equal(t, tc.expectedError, err, "Error on user response")
+		})
+	}
+}
+
+func TestMakeDeleteUserEndpoint(t *testing.T) {
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ctx := context.Background()
+	testCases := []struct {
+		testName      string
+		input         deleteUserRequest
+		expectedError error
+	}{
+		{
+			testName:      "test delete user on request  ",
+			input:         deleteUserRequest{id: 1},
+			expectedError: nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			serviceMock := new(ServiceMock)
+			serviceMock.On("DeleteUser", mock.Anything, mock.Anything).Return(tc.expectedError)
+			ep := makeDeleteUserEndpoint(serviceMock, logger)
+			res, err := ep(ctx, tc.input)
+			if err != nil {
+				t.Errorf("Error creating user endpoint")
+				return
+			}
+			_, ok := res.(deleteUserResponse)
+			if !ok {
+				t.Errorf("Error parsing user response on test")
+				return
+			}
+			assert.Equal(t, tc.expectedError, err, "Error on user response")
+		})
+	}
+
 }

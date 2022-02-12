@@ -2,13 +2,17 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
 
+	"github.com/caarlos0/env/v6"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 	kitGRPC "github.com/go-kit/kit/transport/grpc"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/go-sql-driver/mysql"
 	"github.com/jcromanu/final_project/user_service/pb"
 	userservice "github.com/jcromanu/final_project/user_service/pkg/user_service"
@@ -18,26 +22,35 @@ import (
 func main() {
 
 	var logger log.Logger
+	{
+		logger = log.NewLogfmtLogger(os.Stderr)
+		logger = log.With(logger, "ts", log.DefaultTimestampUTC)
+		logger = log.With(logger, "caller", log.DefaultCaller)
+	}
+	middlewares := []endpoint.Middleware{}
+	grpcServerOptions := []kitGRPC.ServerOption{}
 
-	var (
-		middlewares       = []endpoint.Middleware{}
-		grpcServerOptions = []kitGRPC.ServerOption{}
-	)
+	errs := make(chan error)
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+		errs <- fmt.Errorf("%s", <-c)
+	}()
 
-	logger = log.NewLogfmtLogger(os.Stderr)
-	logger = log.NewSyncLogger(logger)
-	logger = log.With(logger, "grpc_server", "time", log.DefaultTimestamp, "caller")
+	level.Info(logger).Log("msg", "grpc service started")
+	defer level.Info(logger).Log("msg", "grpc service stoped")
 
-	level.Info(logger).Log("msg", "service started")
-	defer level.Info(logger).Log("msg", "service stoped")
+	envCfg := serverConfig{}
+	if err := env.Parse(&envCfg); err != nil {
+		level.Error(logger).Log("Error retrieviing env variables using default ones ")
+	}
 
-	//Change user and password for env variable and dockerize it
 	cfg := mysql.Config{
-		User:   "root",
-		Passwd: "password",
-		Net:    "tcp",
-		Addr:   "localhost",
-		DBName: "user_db",
+		User:   envCfg.MySQLUsr,
+		Passwd: envCfg.MySQLPwd,
+		Net:    envCfg.MySQLNet,
+		Addr:   envCfg.MySQLAddr,
+		DBName: envCfg.MYSQLDBName,
 	}
 
 	db, err := sql.Open("mysql", cfg.FormatDSN())
@@ -55,18 +68,29 @@ func main() {
 	userService := userservice.NewService(repo, logger)
 	userEndpoints := userservice.MakeEndpoints(userService, logger, middlewares)
 	userGRPCServer := userservice.NewGRPCServer(userEndpoints, grpcServerOptions, logger)
-	grpcListener, err := net.Listen("tcp", ":8080")
+	grpcListener, err := net.Listen("tcp", fmt.Sprintf(":%d", envCfg.GrpcPort))
 
 	if err != nil {
 		level.Error(logger).Log("error creating listener: ", err)
 		os.Exit(-1)
 	}
 
-	baseServer := gogrpc.NewServer(gogrpc.UnaryInterceptor(kitGRPC.Interceptor))
-	pb.RegisterUserServiceServer(baseServer, userGRPCServer)
-	if err := baseServer.Serve(grpcListener); err != nil {
-		level.Error(logger).Log("error serving grpc server", err)
-	}
-	level.Info(logger).Log("grpce server started ")
+	go func() {
+		baseServer := gogrpc.NewServer(gogrpc.UnaryInterceptor(kitGRPC.Interceptor))
+		pb.RegisterUserServiceServer(baseServer, userGRPCServer)
+		logger.Log("transport", "HTTP", "addr", envCfg.GrpcPort)
+		errs <- baseServer.Serve(grpcListener)
+	}()
 
+	level.Error(logger).Log("grpc server closing on error : ", <-errs)
+}
+
+type serverConfig struct {
+	Hostname    string `env:"HOSTNAME" envDefault:"localhost"`
+	GrpcPort    int    `env:"GRPC_SERVER_PORT" envDefault:"8080"`
+	MySQLUsr    string `env:"MY_SQL_USER"`
+	MySQLPwd    string `env:"MY_SQL_PASSWORD"`
+	MySQLNet    string `env:"MY_SQL_NET"`
+	MySQLAddr   string `env:"MY_SQL_ADDR"`
+	MYSQLDBName string `env:"MY_SQL_DB_NAME"`
 }
