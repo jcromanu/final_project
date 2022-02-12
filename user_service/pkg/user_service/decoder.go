@@ -29,17 +29,6 @@ func makeDecodeGRPCCreateUserRequest(logger log.Logger) kitGRPC.DecodeRequestFun
 	}
 }
 
-func makeEncodeGRPCCReateUserResponse(logger log.Logger) kitGRPC.EncodeResponseFunc {
-	return func(ctx context.Context, resp interface{}) (request interface{}, err error) {
-		res, ok := resp.(createUserResponse)
-		if !ok {
-			level.Error(logger).Log("Create user response  pb not matched")
-			return nil, errors.NewProtoResponseError()
-		}
-		return &pb.CreateUserResponse{User: &pb.User{Id: res.user.Id, PwdHash: res.user.PwdHash, Name: res.user.Name, Age: res.user.Age, Parent: res.user.Parent, AdditionalInformation: res.user.AdditionalInformation}, Message: &pb.MessageResponse{Code: res.message.Code, Message: res.message.Message}}, nil
-	}
-}
-
 func makeDecodeGRPCGetUserRequest(logger log.Logger) kitGRPC.DecodeRequestFunc {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		pbReq, ok := req.(*pb.GetUserRequest)
@@ -48,17 +37,6 @@ func makeDecodeGRPCGetUserRequest(logger log.Logger) kitGRPC.DecodeRequestFunc {
 			return nil, errors.NewProtoRequestError()
 		}
 		return getUserRequest{pbReq.Id}, nil
-	}
-}
-
-func makeEncodeGRPCGetUserResponse(logger log.Logger) kitGRPC.EncodeResponseFunc {
-	return func(ctx context.Context, resp interface{}) (request interface{}, err error) {
-		res, ok := resp.(getUserResponse)
-		if !ok {
-			level.Error(logger).Log("Get user response  pb not matched")
-			return nil, errors.NewProtoResponseError()
-		}
-		return &pb.GetUserResponse{User: &pb.User{Id: res.user.Id, PwdHash: res.user.PwdHash, Name: res.user.Name, Age: res.user.Age, AdditionalInformation: res.user.AdditionalInformation, Parent: res.user.Parent}, Message: &pb.MessageResponse{Code: res.message.Code, Message: res.message.Message}}, nil
 	}
 }
 
@@ -73,17 +51,6 @@ func makeDecodeGRPCUpdateUserRequest(logger log.Logger) kitGRPC.DecodeRequestFun
 	}
 }
 
-func makeEncodeGRPCUpdateUserResponse(logger log.Logger) kitGRPC.EncodeResponseFunc {
-	return func(ctx context.Context, resp interface{}) (request interface{}, err error) {
-		res, ok := resp.(updateUserResponse)
-		if !ok {
-			level.Error(logger).Log("Get user response  pb not matched")
-			return nil, errors.NewProtoResponseError()
-		}
-		return &pb.UpdateUserResponse{Message: &pb.MessageResponse{Code: res.message.Code, Message: res.message.Message}}, nil
-	}
-}
-
 func makeDecodeDeleteUserRequest(logger log.Logger) kitGRPC.DecodeRequestFunc {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		res, ok := req.(*pb.DeleteUserRequest)
@@ -92,16 +59,5 @@ func makeDecodeDeleteUserRequest(logger log.Logger) kitGRPC.DecodeRequestFunc {
 			return nil, errors.NewProtoResponseError()
 		}
 		return deleteUserRequest{id: res.Id}, nil
-	}
-}
-
-func makeEncodeDeleteUserResponse(logger log.Logger) kitGRPC.EncodeResponseFunc {
-	return func(ctx context.Context, resp interface{}) (request interface{}, err error) {
-		res, ok := resp.(deleteUserResponse)
-		if !ok {
-			level.Error(logger).Log("Get user response  pb not matched")
-			return nil, errors.NewProtoResponseError()
-		}
-		return &pb.DeleteUserResponse{Message: &pb.MessageResponse{Message: res.message.Message, Code: 0}}, nil
 	}
 }

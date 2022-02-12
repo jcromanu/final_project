@@ -19,15 +19,6 @@ func decodePostCreateUserRequest(_ context.Context, r *http.Request) (request in
 	return req, nil
 }
 
-func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	if e, ok := response.(errorer); ok && e.error() != nil {
-		encodeError(ctx, e.error(), w)
-		return nil
-	}
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	return json.NewEncoder(w).Encode(response)
-}
-
 func decodeGetUserRequest(ctx context.Context, r *http.Request) (request interface{}, err error) {
 	idParam := mux.Vars(r)["id"]
 	id, err := strconv.Atoi(idParam)
@@ -60,8 +51,4 @@ func decodeDeleteUserRequest(ctx context.Context, r *http.Request) (request inte
 	}
 	request = deleteUserRequest{Id: int32(id)}
 	return request, nil
-}
-
-type errorer interface {
-	error() error
 }
