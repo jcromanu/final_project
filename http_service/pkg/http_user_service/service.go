@@ -46,6 +46,7 @@ func (srv *HttpService) CreateUser(ctx context.Context, usr entities.User) (enti
 		return entities.User{}, err
 	}
 	usr.Id = id
+	usr.PwdHash = ""
 	return usr, nil
 }
 

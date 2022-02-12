@@ -54,7 +54,6 @@ func (srv *UserService) CreateUser(ctx context.Context, user entities.User) (ent
 		level.Error(srv.logger).Log("Env parsing error", err)
 		return entities.User{}, errors.NewInternalError()
 	}
-	tempPwd := user.PwdHash
 	checksum := sha256.Sum256([]byte(user.PwdHash + secret.hashSecret))
 	user.PwdHash = string(fmt.Sprintf("%x", checksum))
 	id, err := srv.repo.CreateUser(ctx, user)
@@ -63,7 +62,7 @@ func (srv *UserService) CreateUser(ctx context.Context, user entities.User) (ent
 		return entities.User{}, err
 	}
 	user.Id = id
-	user.PwdHash = tempPwd
+	user.PwdHash = ""
 	return user, nil
 }
 
@@ -89,6 +88,13 @@ func (srv *UserService) UpdateUser(ctx context.Context, usr entities.User) error
 		level.Error(srv.logger).Log("Bad request  : ", err)
 		return errors.NewBadRequestError()
 	}
+	secret := secret{}
+	if err := env.Parse(&secret); err != nil {
+		level.Error(srv.logger).Log("Env parsing error", err)
+		return errors.NewInternalError()
+	}
+	checksum := sha256.Sum256([]byte(usr.PwdHash + secret.hashSecret))
+	usr.PwdHash = string(fmt.Sprintf("%x", checksum))
 	err := srv.repo.UpdateUser(ctx, usr)
 	if err != nil {
 		level.Error(srv.logger).Log("Error updating user in database:", err)
