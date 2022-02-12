@@ -5,7 +5,10 @@ package userservice
 
 import (
 	"context"
+	"crypto/sha256"
+	"fmt"
 
+	"github.com/caarlos0/env/v6"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/jcromanu/final_project/user_service/errors"
@@ -29,6 +32,10 @@ type Validator interface {
 	Struct(s interface{}) error
 }
 
+type secret struct {
+	hashSecret string `ENV:"HASH_SECRET"`
+}
+
 func NewService(repo Repository, logger log.Logger, validator Validator) *UserService {
 	return &UserService{
 		repo:      repo,
@@ -42,12 +49,21 @@ func (srv *UserService) CreateUser(ctx context.Context, user entities.User) (ent
 		level.Error(srv.logger).Log("Bad request  : ", err)
 		return entities.User{}, errors.NewBadRequestError()
 	}
+	secret := secret{}
+	if err := env.Parse(&secret); err != nil {
+		level.Error(srv.logger).Log("Env parsing error", err)
+		return entities.User{}, errors.NewInternalError()
+	}
+	tempPwd := user.PwdHash
+	checksum := sha256.Sum256([]byte(user.PwdHash + secret.hashSecret))
+	user.PwdHash = string(fmt.Sprintf("%x", checksum))
 	id, err := srv.repo.CreateUser(ctx, user)
 	if err != nil {
 		level.Error(srv.logger).Log("Error creating user in database:", err)
 		return entities.User{}, err
 	}
 	user.Id = id
+	user.PwdHash = tempPwd
 	return user, nil
 }
 
