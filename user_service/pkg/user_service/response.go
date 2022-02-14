@@ -3,19 +3,19 @@ package userservice
 import "github.com/jcromanu/final_project/user_service/pkg/entities"
 
 type createUserResponse struct {
-	User    entities.User
-	Message entities.Message
+	user    entities.User
+	message entities.Message
 }
 
 type getUserResponse struct {
-	User    entities.User
-	Message entities.Message
+	user    entities.User
+	message entities.Message
 }
 
 type updateUserResponse struct {
-	Message entities.Message
+	message entities.Message
 }
 
 type deleteUserResponse struct {
-	Message entities.Message
+	message entities.Message
 }

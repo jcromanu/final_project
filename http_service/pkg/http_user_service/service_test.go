@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/go-kit/log"
+	"github.com/go-playground/validator/v10"
 	"github.com/jcromanu/final_project/http_service/pkg/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -22,7 +23,7 @@ func TestCreateUser(t *testing.T) {
 	}{
 		{
 			testName:       "test create user all fields   ",
-			input:          entities.User{Name: "Juan", Pwd_hash: "ooo", Age: 31, Additional_information: "no info", Parent: []string{}},
+			input:          entities.User{Name: "Juan", PwdHash: "ooo", Age: 31, AdditionalInformation: "no info", Parent: []string{}},
 			expectedOutput: 1,
 			expectedError:  nil,
 		},
@@ -33,8 +34,9 @@ func TestCreateUser(t *testing.T) {
 			ctx := context.Background()
 			assert := assert.New(t)
 			inputUser := tc.input
+			validator := validator.New()
 			httpRepoMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
-			httpSrv := NewHttpService(httpRepoMock, logger)
+			httpSrv := NewHttpService(httpRepoMock, logger, validator)
 			usr, err := httpSrv.CreateUser(ctx, inputUser)
 			assert.Equal(tc.expectedOutput, usr.Id, "User creation fail ")
 			assert.Equal(tc.expectedError, err, "User creation error:  ", err)
@@ -63,9 +65,10 @@ func TestGetUser(t *testing.T) {
 		t.Run(tc.testName, func(t *testing.T) {
 			ctx := context.Background()
 			assert := assert.New(t)
+			validator := validator.New()
 			inputId := tc.input
 			httpRepoMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.expectedOutput, tc.expectedError)
-			httpSrv := NewHttpService(httpRepoMock, logger)
+			httpSrv := NewHttpService(httpRepoMock, logger, validator)
 			usr, err := httpSrv.GetUser(ctx, inputId)
 			assert.Equal(tc.expectedOutput, usr, "User retrieval  fail ")
 			assert.Equal(tc.expectedError, err, "User retrieval error:  ", err)
@@ -84,7 +87,7 @@ func TestUpdateUser(t *testing.T) {
 	}{
 		{
 			testName:        "test update user all fields   ",
-			input:           entities.User{Id: 1, Name: "Juan", Pwd_hash: "hash", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}},
+			input:           entities.User{Id: 1, Name: "Juan", PwdHash: "hash", Age: 30, AdditionalInformation: "additional info", Parent: []string{"parent sample"}},
 			expectedError:   nil,
 			expectedMessage: "user updated",
 		},
@@ -93,8 +96,9 @@ func TestUpdateUser(t *testing.T) {
 		t.Run(tc.testName, func(t *testing.T) {
 			ctx := context.Background()
 			assert := assert.New(t)
+			validator := validator.New()
 			httpRepoMock.On("UpdateUser", mock.Anything, mock.Anything).Return(tc.expectedMessage, tc.expectedError)
-			httpSrv := NewHttpService(httpRepoMock, logger)
+			httpSrv := NewHttpService(httpRepoMock, logger, validator)
 			_, err := httpSrv.UpdateUser(ctx, tc.input)
 			assert.Equal(tc.expectedError, err, "User retrieval fail ")
 		})
@@ -120,8 +124,9 @@ func DeleteUser(t *testing.T) {
 	for _, tc := range testCases {
 		ctx := context.Background()
 		assert := assert.New(t)
+		validator := validator.New()
 		httpRepoMock.On("DeleteUser", mock.Anything, mock.Anything).Return(tc.expectedMessage, tc.expectedError)
-		httpSrv := NewHttpService(httpRepoMock, logger)
+		httpSrv := NewHttpService(httpRepoMock, logger, validator)
 		_, err := httpSrv.DeleteUser(ctx, tc.input)
 		assert.Equal(tc.expectedError, err)
 	}

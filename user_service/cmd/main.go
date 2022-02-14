@@ -13,6 +13,7 @@ import (
 	kitGRPC "github.com/go-kit/kit/transport/grpc"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/go-playground/validator/v10"
 	"github.com/go-sql-driver/mysql"
 	"github.com/jcromanu/final_project/user_service/pb"
 	userservice "github.com/jcromanu/final_project/user_service/pkg/user_service"
@@ -29,6 +30,7 @@ func main() {
 	}
 	middlewares := []endpoint.Middleware{}
 	grpcServerOptions := []kitGRPC.ServerOption{}
+	validator := validator.New()
 
 	errs := make(chan error)
 	go func() {
@@ -65,7 +67,7 @@ func main() {
 	}
 
 	repo := userservice.NewUserRepository(db, logger)
-	userService := userservice.NewService(repo, logger)
+	userService := userservice.NewService(repo, logger, validator)
 	userEndpoints := userservice.MakeEndpoints(userService, logger, middlewares)
 	userGRPCServer := userservice.NewGRPCServer(userEndpoints, grpcServerOptions, logger)
 	grpcListener, err := net.Listen("tcp", fmt.Sprintf(":%d", envCfg.GrpcPort))

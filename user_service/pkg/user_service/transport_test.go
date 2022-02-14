@@ -30,7 +30,7 @@ func TestTransportCreateUser(t *testing.T) {
 	}{
 		{
 			testName:       "test create user server  user with all fields success  ",
-			input:          createUserRequest{User: entities.User{Name: "Juan", Age: 30, Additional_information: "additional info", Parent: []string{"parent sample"}}},
+			input:          createUserRequest{user: entities.User{Name: "Juan", Age: 30, AdditionalInformation: "additional info", Parent: []string{"parent sample"}}},
 			expectedOutput: 1,
 			expectedError:  nil,
 		},
@@ -65,17 +65,17 @@ func TestTransportGetUser(t *testing.T) {
 	}{
 		{
 			testName:       "test get user  server  user with all fields success  ",
-			input:          getUserRequest{Id: 1},
+			input:          getUserRequest{id: 1},
 			expectedOutput: entities.User{Id: 1},
 			expectedError:  nil,
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
-			srvMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.input.Id, tc.expectedError)
+			srvMock.On("GetUser", mock.Anything, mock.Anything).Return(tc.input.id, tc.expectedError)
 			endpoints := MakeEndpoints(srvMock, logger, middlewares)
 			grpcServer := NewGRPCServer(endpoints, opts, logger)
-			res, err := grpcServer.GetUser(ctx, &pb.GetUserRequest{Id: tc.input.Id})
+			res, err := grpcServer.GetUser(ctx, &pb.GetUserRequest{Id: tc.input.id})
 			if err != nil {
 				t.Errorf(err.Error())
 				return

@@ -5,10 +5,12 @@ package userservice
 
 import (
 	"context"
+	"crypto/sha256"
+	"fmt"
 
+	"github.com/caarlos0/env/v6"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"github.com/go-playground/validator/v10"
 	"github.com/jcromanu/final_project/user_service/errors"
 	"github.com/jcromanu/final_project/user_service/pkg/entities"
 )
@@ -16,21 +18,29 @@ import (
 type UserService struct {
 	repo      Repository
 	logger    log.Logger
-	validator *validator.Validate
+	validator Validator
 }
 
 type Repository interface {
-	CreateUser(context.Context, entities.User) (int32, error)
-	GetUser(context.Context, int32) (entities.User, error)
-	UpdateUser(context.Context, entities.User) error
-	DeleteUser(context.Context, int32) error
+	CreateUser(ctx context.Context, usr entities.User) (int32, error)
+	GetUser(ctx context.Context, id int32) (entities.User, error)
+	UpdateUser(ctx context.Context, usr entities.User) error
+	DeleteUser(ctx context.Context, id int32) error
 }
 
-func NewService(repo Repository, logger log.Logger) *UserService {
+type Validator interface {
+	Struct(s interface{}) error
+}
+
+type secret struct {
+	hashSecret string `ENV:"HASH_SECRET"`
+}
+
+func NewService(repo Repository, logger log.Logger, validator Validator) *UserService {
 	return &UserService{
 		repo:      repo,
 		logger:    logger,
-		validator: validator.New(),
+		validator: validator,
 	}
 }
 
@@ -39,13 +49,21 @@ func (srv *UserService) CreateUser(ctx context.Context, user entities.User) (ent
 		level.Error(srv.logger).Log("Bad request  : ", err)
 		return entities.User{}, errors.NewBadRequestError()
 	}
+	secret := secret{}
+	if err := env.Parse(&secret); err != nil {
+		level.Error(srv.logger).Log("Env parsing error", err)
+		return entities.User{}, errors.NewInternalError()
+	}
+	checksum := sha256.Sum256([]byte(user.PwdHash + secret.hashSecret))
+	user.PwdHash = string(fmt.Sprintf("%x", checksum))
 	id, err := srv.repo.CreateUser(ctx, user)
 	if err != nil {
 		level.Error(srv.logger).Log("Error creating user in database:", err)
 		return entities.User{}, err
 	}
 	user.Id = id
-	return user, err
+	user.PwdHash = ""
+	return user, nil
 }
 
 func (srv *UserService) GetUser(ctx context.Context, id int32) (entities.User, error) {
@@ -58,7 +76,7 @@ func (srv *UserService) GetUser(ctx context.Context, id int32) (entities.User, e
 		level.Error(srv.logger).Log("Error retrieving  user in database:", err)
 		return entities.User{}, err
 	}
-	return usr, err
+	return usr, nil
 }
 
 func (srv *UserService) UpdateUser(ctx context.Context, usr entities.User) error {
@@ -70,6 +88,13 @@ func (srv *UserService) UpdateUser(ctx context.Context, usr entities.User) error
 		level.Error(srv.logger).Log("Bad request  : ", err)
 		return errors.NewBadRequestError()
 	}
+	secret := secret{}
+	if err := env.Parse(&secret); err != nil {
+		level.Error(srv.logger).Log("Env parsing error", err)
+		return errors.NewInternalError()
+	}
+	checksum := sha256.Sum256([]byte(usr.PwdHash + secret.hashSecret))
+	usr.PwdHash = string(fmt.Sprintf("%x", checksum))
 	err := srv.repo.UpdateUser(ctx, usr)
 	if err != nil {
 		level.Error(srv.logger).Log("Error updating user in database:", err)

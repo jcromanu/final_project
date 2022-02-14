@@ -14,7 +14,7 @@ import (
 const (
 	createUserSQL = `INSERT INTO USER(username,age,pwd_hash,additional_information,parent) 
 	VALUES(?,?,?,?,?)`
-	getUserSQL    = `SELECT u.username , u.pwd_hash , u.additional_information , u.age , u.parent FROM USER u  WHERE u.id = ? `
+	getUserSQL    = `SELECT u.username ,  u.additional_information , u.age , u.parent FROM USER u  WHERE u.id = ? `
 	updateUserSQL = "UPDATE USER set username = ? , age = ? , pwd_hash = ? , additional_information = ? , parent = ? where id = ?  "
 	deleteUserSQL = `DELETE FROM USER WHERE id = ? `
 )
@@ -33,19 +33,30 @@ func NewUserRepository(db *sql.DB, log log.Logger) *userRepository {
 
 func (r *userRepository) CreateUser(ctx context.Context, usr entities.User) (int32, error) {
 	var res sql.Result
-	res, err := r.db.ExecContext(ctx, createUserSQL, usr.Name, usr.Age, usr.Pwd_hash, usr.Additional_information, strings.Join(usr.Parent, ","))
+	stmt, err := r.db.PrepareContext(ctx, createUserSQL)
+	if err != nil {
+		return 0, errors.NewInternalError()
+	}
+	res, err = stmt.ExecContext(ctx, usr.Name, usr.Age, usr.PwdHash, usr.AdditionalInformation, strings.Join(usr.Parent, ","))
 	if err != nil {
 		level.Error(r.log).Log("Error creating user" + err.Error())
 		return 0, errors.NewInternalError()
 	}
-	id, _ := res.LastInsertId()
+	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, errors.NewInternalError()
+	}
 	return int32(id), nil
 }
 
 func (r *userRepository) GetUser(ctx context.Context, id int32) (entities.User, error) {
 	var parent *string
 	usr := entities.User{}
-	err := r.db.QueryRow(getUserSQL, id).Scan(&usr.Name, &usr.Pwd_hash, &usr.Additional_information, &usr.Age, &parent)
+	stmt, err := r.db.PrepareContext(ctx, getUserSQL)
+	if err != nil {
+		return entities.User{}, errors.NewInternalError()
+	}
+	err = stmt.QueryRow(id).Scan(&usr.Name, &usr.AdditionalInformation, &usr.Age, &parent)
 	if err == sql.ErrNoRows {
 		level.Error(r.log).Log("Error retrieving user" + err.Error())
 		return entities.User{}, errors.NewUserNotFoundError()
@@ -60,13 +71,19 @@ func (r *userRepository) GetUser(ctx context.Context, id int32) (entities.User, 
 }
 
 func (r *userRepository) UpdateUser(ctx context.Context, usr entities.User) error {
-
-	if err := r.db.QueryRow(getUserSQL, usr.Id).Scan(); err == sql.ErrNoRows {
+	stmt, err := r.db.PrepareContext(ctx, getUserSQL)
+	if err != nil {
+		return errors.NewInternalError()
+	}
+	if err := stmt.QueryRow(usr.Id).Scan(); err == sql.ErrNoRows {
 		level.Error(r.log).Log("Error retrieving user ")
 		return errors.NewUserNotFoundError()
 	}
-
-	_, err := r.db.ExecContext(ctx, updateUserSQL, usr.Name, usr.Age, usr.Pwd_hash, usr.Additional_information, strings.Join(usr.Parent, ","), usr.Id)
+	stmt, err = r.db.PrepareContext(ctx, updateUserSQL)
+	if err != nil {
+		return errors.NewInternalError()
+	}
+	_, err = stmt.ExecContext(ctx, usr.Name, usr.Age, usr.PwdHash, usr.AdditionalInformation, strings.Join(usr.Parent, ","), usr.Id)
 	if err != nil {
 		level.Error(r.log).Log("Error updating user " + err.Error())
 		return errors.NewInternalError()
@@ -75,11 +92,20 @@ func (r *userRepository) UpdateUser(ctx context.Context, usr entities.User) erro
 }
 
 func (r *userRepository) DeleteUser(ctx context.Context, id int32) error {
-	if err := r.db.QueryRow(getUserSQL, id).Scan(); err == sql.ErrNoRows {
+	stmt, err := r.db.PrepareContext(ctx, getUserSQL)
+	if err != nil {
+		return errors.NewInternalError()
+	}
+	if err := stmt.QueryRow(id).Scan(); err == sql.ErrNoRows {
 		level.Error(r.log).Log("Error deleting user ")
 		return errors.NewUserNotFoundError()
 	}
-	_, err := r.db.ExecContext(ctx, deleteUserSQL, id)
+
+	stmt, err = r.db.PrepareContext(ctx, deleteUserSQL)
+	if err != nil {
+		return errors.NewInternalError()
+	}
+	_, err = stmt.ExecContext(ctx, id)
 	if err != nil {
 		level.Error(r.log).Log("Error deleting user " + err.Error())
 		return errors.NewInternalError()

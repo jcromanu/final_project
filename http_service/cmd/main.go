@@ -12,6 +12,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/go-playground/validator/v10"
 	httpuserservice "github.com/jcromanu/final_project/http_service/pkg/http_user_service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -26,6 +27,7 @@ func main() {
 		logger = log.With(logger, "caller", log.DefaultCaller)
 	}
 	middlewares := []endpoint.Middleware{}
+	validator := validator.New()
 	cfg := serverConfig{}
 	errs := make(chan error)
 	go func() {
@@ -50,13 +52,13 @@ func main() {
 	httpAddr := flag.String("http.addr", httpPort, "HTTP listen address")
 
 	repo := httpuserservice.NewRespository(userGRPC, logger)
-	srv := httpuserservice.NewHttpService(repo, logger)
+	srv := httpuserservice.NewHttpService(repo, logger, validator)
 	endpoints := httpuserservice.MakeEndpoints(srv, logger, middlewares)
 	httpserver := httpuserservice.NewHTTPServer(endpoints, logger)
 
 	go func() {
 		logger.Log("transport", "HTTP", "addr", *httpAddr)
-		errs <- http.ListenAndServe(*httpAddr, httpserver)
+		errs <- http.ListenAndServe(*httpAddr, Authorization(httpserver))
 	}()
 
 	logger.Log("http client server closing on error ", <-errs)

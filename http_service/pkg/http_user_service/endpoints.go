@@ -12,25 +12,25 @@ import (
 )
 
 type Endpoints struct {
-	CreateUser endpoint.Endpoint
-	GetUser    endpoint.Endpoint
-	UpdateUser endpoint.Endpoint
-	DeleteUser endpoint.Endpoint
+	createUser endpoint.Endpoint
+	getUser    endpoint.Endpoint
+	updateUser endpoint.Endpoint
+	deleteUser endpoint.Endpoint
 }
 
 type Service interface {
-	CreateUser(context.Context, entities.User) (entities.User, error)
-	GetUser(context.Context, int32) (entities.User, error)
-	UpdateUser(context.Context, entities.User) (string, error)
-	DeleteUser(context.Context, int32) (string, error)
+	CreateUser(ctx context.Context, usr entities.User) (entities.User, error)
+	GetUser(ctx context.Context, id int32) (entities.User, error)
+	UpdateUser(ctx context.Context, usr entities.User) (string, error)
+	DeleteUser(ctx context.Context, id int32) (string, error)
 }
 
 func MakeEndpoints(srv Service, logger log.Logger, middlewares []endpoint.Middleware) Endpoints {
 	return Endpoints{
-		CreateUser: makeCreateUserEndpoint(srv, logger),
-		GetUser:    makeGetUserEndpoint(srv, logger),
-		UpdateUser: makeUpdateUserEndpoint(srv, logger),
-		DeleteUser: makeDeleteUserEndpoint(srv, logger),
+		createUser: makeCreateUserEndpoint(srv, logger),
+		getUser:    makeGetUserEndpoint(srv, logger),
+		updateUser: makeUpdateUserEndpoint(srv, logger),
+		deleteUser: makeDeleteUserEndpoint(srv, logger),
 	}
 }
 

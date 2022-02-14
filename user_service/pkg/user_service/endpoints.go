@@ -12,10 +12,10 @@ import (
 )
 
 type Endpoints struct {
-	CreateUser endpoint.Endpoint
-	GetUser    endpoint.Endpoint
-	UpdateUser endpoint.Endpoint
-	DeleteUser endpoint.Endpoint
+	createUser endpoint.Endpoint
+	getUser    endpoint.Endpoint
+	updateUser endpoint.Endpoint
+	deleteUser endpoint.Endpoint
 }
 
 type Service interface {
@@ -28,10 +28,10 @@ type Service interface {
 func MakeEndpoints(srv Service, logger log.Logger, middlewares []endpoint.Middleware) Endpoints {
 	return Endpoints{
 		//CreateUser: wrapEndpoints(makeCreateUserEndpoint(srv, logger), middlewares)
-		CreateUser: makeCreateUserEndpoint(srv, logger),
-		GetUser:    makeGetUserEndpoint(srv, logger),
-		UpdateUser: makeUpdatesUserEndpoint(srv, logger),
-		DeleteUser: makeDeleteUserEndpoint(srv, logger),
+		createUser: makeCreateUserEndpoint(srv, logger),
+		getUser:    makeGetUserEndpoint(srv, logger),
+		updateUser: makeUpdatesUserEndpoint(srv, logger),
+		deleteUser: makeDeleteUserEndpoint(srv, logger),
 	}
 }
 
@@ -43,12 +43,12 @@ func makeCreateUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 			level.Error(logger).Log(reflect.TypeOf(request))
 			return createUserResponse{}, errors.NewBadRequestError()
 		}
-		usr, err := srv.CreateUser(ctx, req.User)
+		usr, err := srv.CreateUser(ctx, req.user)
 		if err != nil {
 			level.Error(logger).Log(err)
 			return createUserResponse{}, err
 		}
-		return createUserResponse{User: usr, Message: entities.Message{Message: "User created", Code: 0}}, nil
+		return createUserResponse{user: usr, message: entities.Message{Message: "User created", Code: 0}}, nil
 	}
 }
 
@@ -60,12 +60,12 @@ func makeGetUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 			level.Error(logger).Log(reflect.TypeOf(request))
 			return nil, errors.NewBadRequestError()
 		}
-		usr, err := srv.GetUser(ctx, req.Id)
+		usr, err := srv.GetUser(ctx, req.id)
 		if err != nil {
 			level.Error(logger).Log(err)
 			return nil, err
 		}
-		return getUserResponse{User: usr, Message: entities.Message{Message: "User retrieved", Code: 0}}, nil
+		return getUserResponse{user: usr, message: entities.Message{Message: "User retrieved", Code: 0}}, nil
 	}
 }
 
@@ -77,7 +77,7 @@ func makeUpdatesUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 			level.Error(logger).Log(reflect.TypeOf(request))
 			return nil, errors.NewBadRequestError()
 		}
-		err := srv.UpdateUser(ctx, req.User)
+		err := srv.UpdateUser(ctx, req.user)
 		if err != nil {
 			level.Error(logger).Log(err)
 			return nil, err
