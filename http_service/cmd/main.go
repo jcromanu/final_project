@@ -58,7 +58,7 @@ func main() {
 
 	go func() {
 		logger.Log("transport", "HTTP", "addr", *httpAddr)
-		errs <- http.ListenAndServe(*httpAddr, httpserver)
+		errs <- http.ListenAndServe(*httpAddr, Authorization(httpserver))
 	}()
 
 	logger.Log("http client server closing on error ", <-errs)

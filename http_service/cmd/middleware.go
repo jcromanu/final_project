@@ -10,26 +10,26 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func Authorization(h http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func Authorization(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		jwt, err := GetTokenFromHeader(r)
 		if err != nil {
 			fmt.Println(err.Error())
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
-		} else {
-			valid, err := ValidateToken(jwt)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusUnauthorized)
-			}
-			if valid {
-				h(w, r)
-				return
-			}
+		}
+		valid, err := ValidateToken(jwt)
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 			return
 		}
-	}
+		if valid {
+			h.ServeHTTP(w, r)
+			return
+		}
+	})
 }
 
 func GetTokenFromHeader(r *http.Request) (string, error) {
