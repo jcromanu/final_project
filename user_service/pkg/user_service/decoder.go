@@ -25,6 +25,7 @@ func makeDecodeGRPCCreateUserRequest(logger log.Logger) kitGRPC.DecodeRequestFun
 			Age:                   pbReq.User.Age,
 			AdditionalInformation: pbReq.User.AdditionalInformation,
 			Parent:                pbReq.User.Parent,
+			Email:                 pbReq.User.Email,
 		}}, nil
 	}
 }
@@ -47,7 +48,15 @@ func makeDecodeGRPCUpdateUserRequest(logger log.Logger) kitGRPC.DecodeRequestFun
 			level.Error(logger).Log("Update user request pb not matched")
 			return nil, errors.NewProtoRequestError()
 		}
-		return updateUserRequest{entities.User{Id: pbReq.User.Id, PwdHash: pbReq.User.PwdHash, Name: pbReq.User.Name, Age: pbReq.User.Age, AdditionalInformation: pbReq.User.AdditionalInformation, Parent: pbReq.User.Parent}}, nil
+		return updateUserRequest{entities.User{
+				Id:                    pbReq.User.Id,
+				PwdHash:               pbReq.User.PwdHash,
+				Name:                  pbReq.User.Name,
+				Age:                   pbReq.User.Age,
+				AdditionalInformation: pbReq.User.AdditionalInformation,
+				Parent:                pbReq.User.Parent,
+				Email:                 pbReq.User.Email}},
+			nil
 	}
 }
 

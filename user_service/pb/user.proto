@@ -17,7 +17,8 @@ message User {
     string name=5;
     int32 age=7;
     string additional_information = 9; 
-    repeated string parent = 11; 
+    repeated string parent = 11;
+    string email = 13;
 }
 
 message CreateUserRequest {

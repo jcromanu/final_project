@@ -17,7 +17,18 @@ func makeEncodeGRPCCReateUserResponse(logger log.Logger) kitGRPC.EncodeResponseF
 			level.Error(logger).Log("Create user response  pb not matched")
 			return nil, errors.NewProtoResponseError()
 		}
-		return &pb.CreateUserResponse{User: &pb.User{Id: res.user.Id, PwdHash: res.user.PwdHash, Name: res.user.Name, Age: res.user.Age, Parent: res.user.Parent, AdditionalInformation: res.user.AdditionalInformation}, Message: &pb.MessageResponse{Code: res.message.Code, Message: res.message.Message}}, nil
+		return &pb.CreateUserResponse{
+			User: &pb.User{
+				Id:                    res.user.Id,
+				PwdHash:               res.user.PwdHash,
+				Name:                  res.user.Name,
+				Age:                   res.user.Age,
+				Parent:                res.user.Parent,
+				AdditionalInformation: res.user.AdditionalInformation,
+				Email:                 res.user.Email},
+			Message: &pb.MessageResponse{
+				Code:    res.message.Code,
+				Message: res.message.Message}}, nil
 	}
 }
 
@@ -28,7 +39,17 @@ func makeEncodeGRPCGetUserResponse(logger log.Logger) kitGRPC.EncodeResponseFunc
 			level.Error(logger).Log("Get user response  pb not matched")
 			return nil, errors.NewProtoResponseError()
 		}
-		return &pb.GetUserResponse{User: &pb.User{Id: res.user.Id, PwdHash: res.user.PwdHash, Name: res.user.Name, Age: res.user.Age, AdditionalInformation: res.user.AdditionalInformation, Parent: res.user.Parent}, Message: &pb.MessageResponse{Code: res.message.Code, Message: res.message.Message}}, nil
+		return &pb.GetUserResponse{
+			User: &pb.User{Id: res.user.Id,
+				PwdHash:               res.user.PwdHash,
+				Name:                  res.user.Name,
+				Age:                   res.user.Age,
+				AdditionalInformation: res.user.AdditionalInformation,
+				Parent:                res.user.Parent,
+				Email:                 res.user.Email},
+			Message: &pb.MessageResponse{
+				Code:    res.message.Code,
+				Message: res.message.Message}}, nil
 	}
 }
 

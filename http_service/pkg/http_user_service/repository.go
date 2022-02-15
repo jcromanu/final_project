@@ -23,7 +23,14 @@ func NewRespository(conn *grpc.ClientConn, log log.Logger) *repository {
 }
 
 func (r *repository) CreateUser(ctx context.Context, usr entities.User) (int32, error) {
-	usrReq := &pb.CreateUserRequest{User: &pb.User{PwdHash: usr.PwdHash, Name: usr.Name, Age: usr.Age, AdditionalInformation: usr.AdditionalInformation, Parent: usr.Parent}}
+	usrReq := &pb.CreateUserRequest{
+		User: &pb.User{
+			PwdHash:               usr.PwdHash,
+			Name:                  usr.Name,
+			Age:                   usr.Age,
+			AdditionalInformation: usr.AdditionalInformation,
+			Parent:                usr.Parent,
+			Email:                 usr.Email}}
 	userResponse, err := r.client.CreateUser(ctx, usrReq)
 	if err != nil {
 		level.Error(r.log).Log("Client error creating user", err)
@@ -46,12 +53,21 @@ func (r *repository) GetUser(ctx context.Context, id int32) (entities.User, erro
 		PwdHash:               userResponse.User.PwdHash,
 		Name:                  userResponse.User.Name,
 		Parent:                userResponse.User.Parent,
+		Email:                 userResponse.User.Email,
 	}
 	return usr, nil
 }
 
 func (r *repository) UpdateUser(ctx context.Context, usr entities.User) (string, error) {
-	usrReq := &pb.UpdateUserRequest{User: &pb.User{Id: usr.Id, PwdHash: usr.PwdHash, Name: usr.Name, Age: usr.Age, AdditionalInformation: usr.AdditionalInformation, Parent: usr.Parent}}
+	usrReq := &pb.UpdateUserRequest{
+		User: &pb.User{
+			Id:                    usr.Id,
+			PwdHash:               usr.PwdHash,
+			Name:                  usr.Name,
+			Age:                   usr.Age,
+			AdditionalInformation: usr.AdditionalInformation,
+			Parent:                usr.Parent,
+			Email:                 usr.Email}}
 	resp, err := r.client.UpdateUser(ctx, usrReq)
 	if err != nil {
 		level.Error(r.log).Log("Client error updating user ", err)

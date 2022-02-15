@@ -23,7 +23,7 @@ func TestCreateUser(t *testing.T) {
 	}{
 		{
 			testName:       "test create user all fields   ",
-			input:          entities.User{Name: "Juan", PwdHash: "ooo", Age: 31, AdditionalInformation: "no info", Parent: []string{}},
+			input:          entities.User{Name: "Juan", PwdHash: "ooo", Age: 31, AdditionalInformation: "no info", Parent: []string{}, Email: "juancarlos.roman@globant.com"},
 			expectedOutput: 1,
 			expectedError:  nil,
 		},
@@ -87,7 +87,7 @@ func TestUpdateUser(t *testing.T) {
 	}{
 		{
 			testName:        "test update user all fields   ",
-			input:           entities.User{Id: 1, Name: "Juan", PwdHash: "hash", Age: 30, AdditionalInformation: "additional info", Parent: []string{"parent sample"}},
+			input:           entities.User{Id: 1, Name: "Juan", PwdHash: "hash", Age: 30, AdditionalInformation: "additional info", Parent: []string{"parent sample"}, Email: "juancarlos.roman@globant.com"},
 			expectedError:   nil,
 			expectedMessage: "user updated",
 		},
