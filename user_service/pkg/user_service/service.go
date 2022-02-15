@@ -46,19 +46,19 @@ func NewService(repo Repository, logger log.Logger, validator Validator) *UserSe
 
 func (srv *UserService) CreateUser(ctx context.Context, user entities.User) (entities.User, error) {
 	if err := srv.validator.Struct(user); err != nil {
-		level.Error(srv.logger).Log("Bad request  : ", err)
+		level.Error(srv.logger).Log(err.Error())
 		return entities.User{}, errors.NewBadRequestError()
 	}
 	secret := secret{}
 	if err := env.Parse(&secret); err != nil {
-		level.Error(srv.logger).Log("Env parsing error", err)
+		level.Error(srv.logger).Log(err.Error())
 		return entities.User{}, errors.NewInternalError()
 	}
 	checksum := sha256.Sum256([]byte(user.PwdHash + secret.hashSecret))
 	user.PwdHash = string(fmt.Sprintf("%x", checksum))
 	id, err := srv.repo.CreateUser(ctx, user)
 	if err != nil {
-		level.Error(srv.logger).Log("Error creating user in database:", err)
+		level.Error(srv.logger).Log(err.Error())
 		return entities.User{}, err
 	}
 	user.Id = id
@@ -68,12 +68,12 @@ func (srv *UserService) CreateUser(ctx context.Context, user entities.User) (ent
 
 func (srv *UserService) GetUser(ctx context.Context, id int32) (entities.User, error) {
 	if id <= 0 {
-		level.Error(srv.logger).Log("Empty user id ")
+		level.Error(srv.logger).Log(errors.NewBadRequestError().Error())
 		return entities.User{}, errors.NewBadRequestError()
 	}
 	usr, err := srv.repo.GetUser(ctx, id)
 	if err != nil {
-		level.Error(srv.logger).Log("Error retrieving  user in database:", err)
+		level.Error(srv.logger).Log(err.Error())
 		return entities.User{}, err
 	}
 	return usr, nil
@@ -81,23 +81,23 @@ func (srv *UserService) GetUser(ctx context.Context, id int32) (entities.User, e
 
 func (srv *UserService) UpdateUser(ctx context.Context, usr entities.User) error {
 	if usr.Id <= 0 {
-		level.Error(srv.logger).Log("Empty user id ")
+		level.Error(srv.logger).Log(errors.NewBadRequestError().Error())
 		return errors.NewBadRequestError()
 	}
 	if err := srv.validator.Struct(usr); err != nil {
-		level.Error(srv.logger).Log("Bad request  : ", err)
+		level.Error(srv.logger).Log(err.Error())
 		return errors.NewBadRequestError()
 	}
 	secret := secret{}
 	if err := env.Parse(&secret); err != nil {
-		level.Error(srv.logger).Log("Env parsing error", err)
+		level.Error(srv.logger).Log(err.Error())
 		return errors.NewInternalError()
 	}
 	checksum := sha256.Sum256([]byte(usr.PwdHash + secret.hashSecret))
 	usr.PwdHash = string(fmt.Sprintf("%x", checksum))
 	err := srv.repo.UpdateUser(ctx, usr)
 	if err != nil {
-		level.Error(srv.logger).Log("Error updating user in database:", err)
+		level.Error(srv.logger).Log(err.Error())
 		return err
 	}
 	return nil
@@ -105,12 +105,12 @@ func (srv *UserService) UpdateUser(ctx context.Context, usr entities.User) error
 
 func (srv *UserService) DeleteUser(ctx context.Context, id int32) error {
 	if id <= 0 {
-		level.Error(srv.logger).Log("Empty user id ")
+		level.Error(srv.logger).Log(errors.NewBadRequestError().Error())
 		return errors.NewBadRequestError()
 	}
 	err := srv.repo.DeleteUser(ctx, id)
 	if err != nil {
-		level.Error(srv.logger).Log("Error deleting user in database:", err)
+		level.Error(srv.logger).Log(err.Error())
 		return err
 	}
 	return nil

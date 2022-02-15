@@ -44,7 +44,7 @@ func main() {
 
 	envCfg := serverConfig{}
 	if err := env.Parse(&envCfg); err != nil {
-		level.Error(logger).Log("Error retrieviing env variables using default ones ")
+		level.Error(logger).Log(err.Error())
 	}
 
 	cfg := mysql.Config{
@@ -57,12 +57,12 @@ func main() {
 
 	db, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
-		level.Error(logger).Log("mysql connection error: ", err)
+		level.Error(logger).Log(err.Error())
 		os.Exit(-1)
 	}
 	pingErr := db.Ping()
 	if pingErr != nil {
-		level.Error(logger).Log("mysql ping error: ", err)
+		level.Error(logger).Log(err.Error())
 		os.Exit(-1)
 	}
 
@@ -73,7 +73,7 @@ func main() {
 	grpcListener, err := net.Listen("tcp", fmt.Sprintf(":%d", envCfg.GrpcPort))
 
 	if err != nil {
-		level.Error(logger).Log("error creating listener: ", err)
+		level.Error(logger).Log(err.Error())
 		os.Exit(-1)
 	}
 

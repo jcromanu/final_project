@@ -18,7 +18,7 @@ func main() {
 	createUserReq := &pb.CreateUserRequest{User: &pb.User{Name: "juan", Age: 31, PwdHash: "ooooo", Parent: []string{}, AdditionalInformation: "informacion que cura"}}
 	conn, err := grpc.Dial("localhost:8080", opts...)
 	if err != nil {
-		log.Fatal("Error on simple rpc ", err)
+		log.Fatal(err.Error())
 	}
 	defer conn.Close()
 	client := pb.NewUserServiceClient(conn)
@@ -32,7 +32,7 @@ func main() {
 	getUserReq := &pb.GetUserRequest{Id: 53}
 	getRes, err := client.GetUser(context.Background(), getUserReq)
 	if err != nil {
-		log.Fatal("Error on simple rpc ", err)
+		log.Fatal(err.Error())
 	}
 	fmt.Print("User id:", getRes.User.Name)
 
@@ -40,7 +40,7 @@ func main() {
 	updateUserReq := &pb.UpdateUserRequest{User: &pb.User{Id: 5, Name: "Pedro", Age: 30, PwdHash: "hash ", AdditionalInformation: "additional info", Parent: []string{"parent sample"}}}
 	updateRes, err := client.UpdateUser(context.Background(), updateUserReq)
 	if err != nil {
-		log.Fatal("Error on simple rpc ", err)
+		log.Fatal(err.Error())
 	}
 	fmt.Println("Updated: " + updateRes.Message.Message)
 
@@ -48,7 +48,7 @@ func main() {
 	deleteUserReq := &pb.DeleteUserRequest{Id: 30}
 	deleteRes, err := client.DeleteUser(context.Background(), deleteUserReq)
 	if err != nil {
-		log.Fatal("Error on simple rpc ", err)
+		log.Fatal(err.Error())
 	}
 	fmt.Println("Deleted id : " + deleteRes.Message.Message)
 }

@@ -34,7 +34,7 @@ func makeDecodeGRPCGetUserRequest(logger log.Logger) kitGRPC.DecodeRequestFunc {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		pbReq, ok := req.(*pb.GetUserRequest)
 		if !ok {
-			level.Error(logger).Log("Get user request pb not matched")
+			level.Error(logger).Log(errors.NewProtoRequestError().Error())
 			return nil, errors.NewProtoRequestError()
 		}
 		return getUserRequest{pbReq.Id}, nil
@@ -45,7 +45,7 @@ func makeDecodeGRPCUpdateUserRequest(logger log.Logger) kitGRPC.DecodeRequestFun
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		pbReq, ok := req.(*pb.UpdateUserRequest)
 		if !ok {
-			level.Error(logger).Log("Update user request pb not matched")
+			level.Error(logger).Log(errors.NewProtoRequestError().Error())
 			return nil, errors.NewProtoRequestError()
 		}
 		return updateUserRequest{entities.User{
@@ -64,7 +64,7 @@ func makeDecodeDeleteUserRequest(logger log.Logger) kitGRPC.DecodeRequestFunc {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		res, ok := req.(*pb.DeleteUserRequest)
 		if !ok {
-			level.Error(logger).Log("Get user response  pb not matched")
+			level.Error(logger).Log(errors.NewProtoResponseError().Error())
 			return nil, errors.NewProtoResponseError()
 		}
 		return deleteUserRequest{id: res.Id}, nil

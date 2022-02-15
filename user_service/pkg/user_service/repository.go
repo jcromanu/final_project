@@ -97,7 +97,7 @@ func (r *userRepository) UpdateUser(ctx context.Context, usr entities.User) erro
 	}
 	err = stmt.QueryRowContext(ctx, usr.Email).Scan(&id)
 	if err != sql.ErrNoRows && id != usr.Id {
-		level.Error(r.log).Log("registered email")
+		level.Error(r.log).Log(errors.NewEmailRegisteredError().Error())
 		return errors.NewEmailRegisteredError()
 	}
 	stmt, err = r.db.PrepareContext(ctx, updateUserSQL)
@@ -119,7 +119,7 @@ func (r *userRepository) DeleteUser(ctx context.Context, id int32) error {
 		return errors.NewInternalError()
 	}
 	if err := stmt.QueryRow(id).Scan(); err == sql.ErrNoRows {
-		level.Error(r.log).Log("Error deleting user ")
+		level.Error(r.log).Log(errors.NewUserNotFoundError().Error())
 		return errors.NewUserNotFoundError()
 	}
 
@@ -129,7 +129,7 @@ func (r *userRepository) DeleteUser(ctx context.Context, id int32) error {
 	}
 	_, err = stmt.ExecContext(ctx, id)
 	if err != nil {
-		level.Error(r.log).Log("Error deleting user " + err.Error())
+		level.Error(r.log).Log(err.Error())
 		return errors.NewInternalError()
 	}
 	return nil

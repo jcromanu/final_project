@@ -38,7 +38,7 @@ func makeCreateUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(createUserRequest)
 		if !ok {
-			level.Error(logger).Log("Bad request on endpoint creation  expected createUserRequest got :")
+			level.Error(logger).Log(errors.NewBadRequestError().Error())
 			level.Error(logger).Log(reflect.TypeOf(request))
 			return nil, errors.NewBadRequestError()
 		}
@@ -55,7 +55,7 @@ func makeGetUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(getUserRequest)
 		if !ok {
-			level.Error(logger).Log("Bad request on endpoint creation  expected getUserRequest got :")
+			level.Error(logger).Log(errors.NewBadRequestError().Error())
 			level.Error(logger).Log(reflect.TypeOf(request))
 			return nil, errors.NewBadRequestError()
 		}
@@ -72,7 +72,7 @@ func makeUpdateUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(updateUserRequest)
 		if !ok {
-			level.Error(logger).Log("Bad request on endpoint creation  expected updateUserRequest got :")
+			level.Error(logger).Log(errors.NewBadRequestError().Error())
 			level.Error(logger).Log(reflect.TypeOf(request))
 			return nil, errors.NewBadRequestError()
 		}
@@ -89,7 +89,7 @@ func makeDeleteUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(deleteUserRequest)
 		if !ok {
-			level.Error(logger).Log("Bad request on endpoint creation  expected deleteUserRequest got :")
+			level.Error(logger).Log(errors.NewBadRequestError().Error())
 			level.Error(logger).Log(reflect.TypeOf(request))
 			return nil, errors.NewBadRequestError()
 		}
