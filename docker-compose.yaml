@@ -1,6 +1,22 @@
-version: '3.8'
-services: 
- mysql:
+version: '3' 
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+    - 8089:8080
+    volumes:
+      - .:/golang-docker
+    depends_on:
+      - database
+    container_name: golang-docker-web
+    environment:
+      - 'DB_PORT=3306'
+      - 'DB_HOST=database'
+     
+
+  database:
     image: mysql:8.0.28
     restart: always 
     container_name: mysql
@@ -16,27 +32,21 @@ services:
       -  mysql_db:/var/lib/mysql
     networks:
       - main_network
- mongo:
-    image: mongo
-    container_name: mongo
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=example
-      - MONGO_INITDB_DATABASE=USERS 
-    restart: always
+
+  pma:
+    image: go-mysql:01
+    depends_on:
+      - database
     ports:
-      - '27017:27017'
-    expose:
-      - '27017'
-    volumes:
-      - mongo_db:/data/db
-    networks:
-      - main_network
+      - 5003:80
+    environment:
+      - 'PMA_HOST=database'
+      - 'PMA_PORT=3306'
+    container_name: golang-docker-pma
+
 volumes:
   mysql_db:
-    name: mysql_db
-  mongo_db:
-    name: mongo_db 
+    name: mysql_db 
 
 networks:
   main_network:
