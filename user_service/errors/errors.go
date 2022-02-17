@@ -11,6 +11,10 @@ func NewUserNotFoundError() error {
 	return status.Error(codes.NotFound, "User not found ")
 }
 
+func NewEmailRegisteredError() error {
+	return status.Error(codes.NotFound, "Email already registered ")
+}
+
 func NewInternalError() error {
 	return status.Error(codes.Internal, "Internal error")
 }
@@ -21,6 +25,10 @@ func NewBadResponseTypeError() error {
 
 func NewBadRequestError() error {
 	return status.Error(codes.InvalidArgument, "Bad request")
+}
+
+func NewUserExistsError() error {
+	return status.Error(codes.InvalidArgument, "User already exists")
 }
 
 func NewParsingRequestError() error {

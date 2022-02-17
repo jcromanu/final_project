@@ -39,7 +39,7 @@ func decodePutUpdateUserRequest(ctx context.Context, r *http.Request) (request i
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.NewBadRequestError()
 	}
-	req.User.Id = int32(id)
+	req.Id = int32(id)
 	return req, nil
 }
 

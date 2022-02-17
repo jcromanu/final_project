@@ -22,7 +22,7 @@ func TestMakeCreateHTTPUserEndpooint(t *testing.T) {
 	}{
 		{
 			testName:       "test create user endpoint ",
-			input:          createUserRequest{entities.User{Name: "Juan", PwdHash: "ooo", Age: 31, AdditionalInformation: "no info", Parent: []string{}}},
+			input:          createUserRequest{Name: "Juan", PwdHash: "ooo", Age: 31, AdditionalInformation: "no info", Parent: []string{}},
 			expectedOutput: 1,
 			expectedError:  nil,
 		},
@@ -44,7 +44,7 @@ func TestMakeCreateHTTPUserEndpooint(t *testing.T) {
 				t.Errorf("Error parsing user response on test")
 				return
 			}
-			assert.Equal(tc.expectedOutput, re.User.Id, "Error on user request ")
+			assert.Equal(tc.expectedOutput, re.Id, "Error on user request ")
 		})
 	}
 }
@@ -82,7 +82,7 @@ func TestMakeGetHTTPUserEndpooint(t *testing.T) {
 				t.Errorf("Error parsing user response on test")
 				return
 			}
-			assert.Equal(tc.expectedOutput, re.User, "Error on user request ")
+			assert.Equal(tc.expectedOutput, entities.User{Id: re.Id, Name: re.Name}, "Error on user request ")
 		})
 	}
 }
@@ -98,7 +98,7 @@ func TestMakeUpdateHTTPUserEndpooint(t *testing.T) {
 	}{
 		{
 			testName:        "test update user endpoint",
-			input:           updateUserRequest{entities.User{Id: 1, Name: "Juan", PwdHash: "ooo", Age: 31, AdditionalInformation: "no info", Parent: []string{}}},
+			input:           updateUserRequest{Id: 1, Name: "Juan", PwdHash: "ooo", Age: 31, AdditionalInformation: "no info", Parent: []string{}},
 			expectedError:   nil,
 			expectedMessage: "user updated",
 		},

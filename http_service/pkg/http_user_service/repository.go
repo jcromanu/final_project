@@ -23,10 +23,17 @@ func NewRespository(conn *grpc.ClientConn, log log.Logger) *repository {
 }
 
 func (r *repository) CreateUser(ctx context.Context, usr entities.User) (int32, error) {
-	usrReq := &pb.CreateUserRequest{User: &pb.User{PwdHash: usr.PwdHash, Name: usr.Name, Age: usr.Age, AdditionalInformation: usr.AdditionalInformation, Parent: usr.Parent}}
+	usrReq := &pb.CreateUserRequest{
+		User: &pb.User{
+			PwdHash:               usr.PwdHash,
+			Name:                  usr.Name,
+			Age:                   usr.Age,
+			AdditionalInformation: usr.AdditionalInformation,
+			Parent:                usr.Parent,
+			Email:                 usr.Email}}
 	userResponse, err := r.client.CreateUser(ctx, usrReq)
 	if err != nil {
-		level.Error(r.log).Log("Client error creating user", err)
+		level.Error(r.log).Log(err.Error())
 		return 0, err
 	}
 	return userResponse.User.Id, nil
@@ -36,7 +43,7 @@ func (r *repository) GetUser(ctx context.Context, id int32) (entities.User, erro
 	usrReq := &pb.GetUserRequest{Id: id}
 	userResponse, err := r.client.GetUser(ctx, usrReq)
 	if err != nil {
-		level.Error(r.log).Log("Client error getting user", err)
+		level.Error(r.log).Log(err.Error())
 		return entities.User{}, err
 	}
 	usr := entities.User{
@@ -46,15 +53,24 @@ func (r *repository) GetUser(ctx context.Context, id int32) (entities.User, erro
 		PwdHash:               userResponse.User.PwdHash,
 		Name:                  userResponse.User.Name,
 		Parent:                userResponse.User.Parent,
+		Email:                 userResponse.User.Email,
 	}
 	return usr, nil
 }
 
 func (r *repository) UpdateUser(ctx context.Context, usr entities.User) (string, error) {
-	usrReq := &pb.UpdateUserRequest{User: &pb.User{Id: usr.Id, PwdHash: usr.PwdHash, Name: usr.Name, Age: usr.Age, AdditionalInformation: usr.AdditionalInformation, Parent: usr.Parent}}
+	usrReq := &pb.UpdateUserRequest{
+		User: &pb.User{
+			Id:                    usr.Id,
+			PwdHash:               usr.PwdHash,
+			Name:                  usr.Name,
+			Age:                   usr.Age,
+			AdditionalInformation: usr.AdditionalInformation,
+			Parent:                usr.Parent,
+			Email:                 usr.Email}}
 	resp, err := r.client.UpdateUser(ctx, usrReq)
 	if err != nil {
-		level.Error(r.log).Log("Client error updating user ", err)
+		level.Error(r.log).Log(err.Error())
 		return "", err
 	}
 	return resp.Message.Message, nil
@@ -64,7 +80,7 @@ func (r *repository) DeleteUser(ctx context.Context, id int32) (string, error) {
 	userReq := &pb.DeleteUserRequest{Id: id}
 	resp, err := r.client.DeleteUser(ctx, userReq)
 	if err != nil {
-		level.Error(r.log).Log("Client error deleting  user ", err)
+		level.Error(r.log).Log(err.Error())
 		return "", err
 	}
 	return resp.Message.Message, nil

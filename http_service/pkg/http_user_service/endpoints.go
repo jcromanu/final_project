@@ -38,16 +38,16 @@ func makeCreateUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(createUserRequest)
 		if !ok {
-			level.Error(logger).Log("Bad request on endpoint creation  expected createUserRequest got :")
+			level.Error(logger).Log(errors.NewBadRequestError().Error())
 			level.Error(logger).Log(reflect.TypeOf(request))
 			return nil, errors.NewBadRequestError()
 		}
-		usr, err := srv.CreateUser(ctx, req.User)
+		usr, err := srv.CreateUser(ctx, entities.User{Name: req.Name, PwdHash: req.PwdHash, Age: req.Age, AdditionalInformation: req.AdditionalInformation, Parent: req.Parent, Email: req.Email})
 		if err != nil {
 			level.Error(logger).Log(err)
 			return nil, err
 		}
-		return createUserResponse{User: usr, Message: entities.Message{Message: "User created", Code: 0}}, nil
+		return createUserResponse{Id: usr.Id, PwdHash: usr.PwdHash, Name: usr.Name, Age: usr.Age, AdditionalInformation: usr.AdditionalInformation, Parent: usr.Parent, Email: usr.Email}, nil
 	}
 }
 
@@ -55,7 +55,7 @@ func makeGetUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(getUserRequest)
 		if !ok {
-			level.Error(logger).Log("Bad request on endpoint creation  expected getUserRequest got :")
+			level.Error(logger).Log(errors.NewBadRequestError().Error())
 			level.Error(logger).Log(reflect.TypeOf(request))
 			return nil, errors.NewBadRequestError()
 		}
@@ -64,7 +64,7 @@ func makeGetUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 			level.Error(logger).Log(err)
 			return nil, err
 		}
-		return getUserResponse{User: usr}, nil
+		return getUserResponse{Id: usr.Id, PwdHash: usr.PwdHash, Name: usr.Name, Age: usr.Age, AdditionalInformation: usr.AdditionalInformation, Parent: usr.Parent, Email: usr.Email}, nil
 	}
 }
 
@@ -72,11 +72,11 @@ func makeUpdateUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(updateUserRequest)
 		if !ok {
-			level.Error(logger).Log("Bad request on endpoint creation  expected updateUserRequest got :")
+			level.Error(logger).Log(errors.NewBadRequestError().Error())
 			level.Error(logger).Log(reflect.TypeOf(request))
 			return nil, errors.NewBadRequestError()
 		}
-		res, err := srv.UpdateUser(ctx, req.User)
+		res, err := srv.UpdateUser(ctx, entities.User{Id: req.Id, PwdHash: req.PwdHash, Name: req.Name, Age: req.Age, AdditionalInformation: req.AdditionalInformation, Parent: req.Parent, Email: req.Email})
 		if err != nil {
 			level.Error(logger).Log(err)
 			return nil, err
@@ -89,7 +89,7 @@ func makeDeleteUserEndpoint(srv Service, logger log.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(deleteUserRequest)
 		if !ok {
-			level.Error(logger).Log("Bad request on endpoint creation  expected deleteUserRequest got :")
+			level.Error(logger).Log(errors.NewBadRequestError().Error())
 			level.Error(logger).Log(reflect.TypeOf(request))
 			return nil, errors.NewBadRequestError()
 		}

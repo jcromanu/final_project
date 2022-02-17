@@ -1,6 +1,8 @@
 package errors
 
 import (
+	"errors"
+
 	"google.golang.org/grpc/codes"
 )
 
@@ -20,6 +22,10 @@ func (err *HttpError) Error() string {
 
 func (err *HttpError) Code() int {
 	return err.StatusCode
+}
+
+func UnexpectedSigningMethod() error {
+	return errors.New("unexpected signing method")
 }
 
 func NewBadRequestError() error {

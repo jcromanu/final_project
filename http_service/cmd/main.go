@@ -40,7 +40,7 @@ func main() {
 	defer level.Info(logger).Log("msg", "htpp service stoped")
 
 	if err := env.Parse(&cfg); err != nil {
-		level.Error(logger).Log("Error retrieviing env variables using default ones ")
+		level.Error(logger).Log(err.Error())
 	}
 	grpcAddr := fmt.Sprintf("%s:%d", cfg.Hostname, cfg.GrpcPort)
 	userGRPC, grpcErr := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))

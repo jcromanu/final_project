@@ -2,9 +2,10 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
+
+	customErrors "github.com/jcromanu/final_project/http_service/errors"
 
 	"github.com/caarlos0/env/v6"
 	"github.com/golang-jwt/jwt"
@@ -14,7 +15,6 @@ func Authorization(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		jwt, err := GetTokenFromHeader(r)
 		if err != nil {
-			fmt.Println(err.Error())
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
@@ -47,10 +47,10 @@ func ValidateToken(tokenStr string) (bool, error) {
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		hmacsecret := &secret{}
 		if err := env.Parse(hmacsecret); err != nil {
-			return nil, errors.New("could not parse env variables" + err.Error())
+			return nil, err
 		}
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("unexpected method")
+			return nil, customErrors.UnexpectedSigningMethod()
 		}
 		return []byte(hmacsecret.Secret), nil
 	})

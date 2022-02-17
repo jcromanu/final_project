@@ -7,6 +7,7 @@ type User struct {
 	Age                   int32    `json:"age" validate:"required"`
 	AdditionalInformation string   `json:"additional_information" validate:"required"`
 	Parent                []string `json:"parent"`
+	Email                 string   `json:"email" validate:"required"`
 }
 
 type Message struct {
