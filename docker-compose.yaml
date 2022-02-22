@@ -29,6 +29,7 @@ services:
     expose:
       - '27017'
     volumes:
+      - ./scripts:/docker-entrypoint-initdb.d
       - mongo_db:/data/db
     networks:
       - main_network
