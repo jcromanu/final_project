@@ -19,7 +19,6 @@ func makeDecodeGRPCCreateUserRequest(logger log.Logger) kitGRPC.DecodeRequestFun
 			return nil, errors.NewProtoRequestError()
 		}
 		return createUserRequest{user: entities.User{
-			Id:                    pbReq.User.Id,
 			Name:                  pbReq.User.Name,
 			PwdHash:               pbReq.User.PwdHash,
 			Age:                   pbReq.User.Age,

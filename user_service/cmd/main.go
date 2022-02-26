@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,9 +17,12 @@ import (
 	"github.com/go-kit/log/level"
 	"github.com/go-playground/validator/v10"
 	"github.com/go-sql-driver/mysql"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/jcromanu/final_project/user_service/pb"
 	userservice "github.com/jcromanu/final_project/user_service/pkg/user_service"
+	"google.golang.org/grpc"
 	gogrpc "google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
@@ -71,18 +76,48 @@ func main() {
 	userEndpoints := userservice.MakeEndpoints(userService, logger, middlewares)
 	userGRPCServer := userservice.NewGRPCServer(userEndpoints, grpcServerOptions, logger)
 	grpcListener, err := net.Listen("tcp", fmt.Sprintf(":%d", envCfg.GrpcPort))
+	if err != nil {
+		level.Error(logger).Log(err.Error())
+		os.Exit(-1)
+	}
+	baseServer := gogrpc.NewServer(gogrpc.UnaryInterceptor(kitGRPC.Interceptor))
+	pb.RegisterUserServiceServer(baseServer, userGRPCServer)
+	go func() {
+		logger.Log("transport", "HTTP", "addr", envCfg.GrpcPort)
+		errs <- baseServer.Serve(grpcListener)
+	}()
+	level.Error(logger).Log("aqui no llega")
 
+	conn, err := grpc.DialContext(
+		context.Background(),
+		"0.0.0.0:"+"8080",
+		grpc.WithBlock(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		level.Error(logger).Log(err.Error())
+		os.Exit(-1)
+	}
+	mux := runtime.NewServeMux()
+	ctxCncl, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	err = pb.RegisterUserServiceHandler(ctxCncl, mux, conn)
+	if err != nil {
+		level.Error(logger).Log(err.Error())
+		os.Exit(-1)
+	}
+
+	httpLst, err := net.Listen("tcp", ":8081")
 	if err != nil {
 		level.Error(logger).Log(err.Error())
 		os.Exit(-1)
 	}
 
 	go func() {
-		baseServer := gogrpc.NewServer(gogrpc.UnaryInterceptor(kitGRPC.Interceptor))
-		pb.RegisterUserServiceServer(baseServer, userGRPCServer)
-		logger.Log("transport", "HTTP", "addr", envCfg.GrpcPort)
-		errs <- baseServer.Serve(grpcListener)
+		logger.Log("transport", "HTTP", "addr", "8081")
+		errs <- http.Serve(httpLst, mux)
 	}()
+	level.Error(logger).Log("aqui no llega 2")
 
 	level.Error(logger).Log("grpc server closing on error : ", <-errs)
 }
